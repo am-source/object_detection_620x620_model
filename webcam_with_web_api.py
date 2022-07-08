@@ -790,7 +790,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                     pos = hochregallager.get_werkstueck_pos_by_werkstueck_box(
                         image, box)
                     if pos is None:
-                        display_str2 = "POS: N/A".format(row, column)
+                        display_str2 = "POS: N/A"
                     else:
                         row, column = pos
                         display_str2 = "POS: {}x{}".format(row, column)
@@ -1149,17 +1149,7 @@ def stuff():
 
 @app.route('/')
 def index():
-    matrice = [[0 for x in range(3)] for y in range(3)]
-    #
-    # for row in range(3):
-    #     for column in range(3):
-    #         skip_var = random.randint(0, 9)
-    #         if skip_var > 5:
-    #             rnd_var = random.randint(0, 9)
-    #             hochregallager_arr[row][column] = rnd_var
-    # return render_template('index.html', matrix=hochregallager_arr)
-    # return render_template('index.html', matrice=matrice)
-    return render_template('index.html', x=0)
+    return render_template('index.html')
 
 
 @app.route('/video')
@@ -1174,13 +1164,3 @@ if __name__ == "__main__":
 
     # app.run(debug=True)
     app.run()
-
-        ##############  visualize  ################################################
-    #
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         cap.release()
-    #         break
-    # cv2.destroyAllWindows()
-
-
-
