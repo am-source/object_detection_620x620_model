@@ -83,25 +83,6 @@ class Hochregallager:
                     pass
 
                 else:
-                    # create a numpy 2d arr (needed for bounding_box_intersect)
-                    #tmp_np_arr = np.array([self.behaelter_arr[row][column].bounding_box])
-
-                    # since behaelter obj in hochregallager.behaelter_arr only get removed after they disappear, bounding boxes
-                    # of behaelter in newer frames wont fit the previous (or possibly first) behaelter coords, 0.8 percent
-                    # should be adequate
-                    # intersect_element = bounding_box_intersect(
-                    #    behaelter_box,
-                    #    tmp_np_arr,
-                    #    im_height=im_height,
-                    #    im_width=im_width,
-                    #    needs_normalization=False,
-                    #    return_percent=False,
-                    #    percent_threshold=0.8
-                    # )
-
-                    # if len(intersect_element) == 1:
-                    #    return (row,column)
-
                     if behaelter_box == self.behaelter_arr[row][column].bounding_box:
                         return (row, column)
 
