@@ -22,7 +22,8 @@ def generate_frames():
         print("IN while True BLOCK! - IF ret WAS TRUE")
 
         image_np_with_detections = detect.handle_detection(camera=cam, hochregallager=hochregallager)
-
+        # resize to match original resolution
+        image_np_with_detections = cv2.resize(image_np_with_detections, cam_resolution)
         # encode for Response stream
         ret, buffer = cv2.imencode('.jpg', image_np_with_detections)
         image_np_with_detections = buffer.tobytes()
@@ -100,8 +101,9 @@ def create_behaelter_dict():
     return behaelter_dict
 
 
+hochregallager = Hochregallager()
+cam_resolution = (1280, 720)
+
 if __name__ == "__main__":
-    global hochregallager
-    hochregallager = Hochregallager()
     # app.run(debug=True)
     app.run()

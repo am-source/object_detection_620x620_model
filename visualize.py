@@ -1,4 +1,3 @@
-import cv2
 import collections
 from object_detection.utils import visualization_utils as viz_utils
 import six
