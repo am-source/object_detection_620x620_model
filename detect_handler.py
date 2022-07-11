@@ -8,18 +8,25 @@ from object_detection.builders import model_builder
 import numpy as np
 import visualize
 from behaelter import Behaelter
+import coordinates as coord
 
-# REMOVE
-# SCRIPTS_PATH = "Tensorflow/scripts"
-# APIMODEL_PATH = "Tensorflow/models"
-# IMAGE_PATH = WORKSPACE_PATH + "/images"
-# PRETRAINED_MODEL_PATH = WORKSPACE_PATH + "/pre-trained-models"
+
 WORKSPACE_PATH = "Tensorflow/workspace"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
 CHECKPOINT_PATH = MODEL_PATH + "/my_ssd_mobnet/"
 CUSTOM_MODEL_NAME = "my_ssd_mobnet"
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
+
+
+## TF setup can't be called more than once, otherwise error would occur
+# Load pipeline config and build a detection model
+configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
+detection_model = model_builder.build(
+    model_config=configs["model"], is_training=False)
+# Restore checkpoint
+ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
+ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
 
 
 def handle_detection(camera, hochregallager):
@@ -33,7 +40,6 @@ def handle_detection(camera, hochregallager):
         hochregallager.set_image(image_np)
 
     ####################  get detections  ##############################################################
-    detection_model = setup_model()
     category_index = get_category_index()
     input_tensor = tf.convert_to_tensor(
         np.expand_dims(image_np, 0), dtype=tf.float32)
@@ -92,10 +98,10 @@ def handle_detection(camera, hochregallager):
         agnostic_mode=False,
         line_thickness=2,
         skip_werkstueck=True,
-        skip_missing_timer=True,
-        skip_boxes=False,
-        skip_scores=False,
-        skip_labels=False,
+        skip_missing_timer=False,
+        skip_boxes=True,
+        skip_scores=True,
+        skip_labels=True,
         text_font_size=16,
     )
 
@@ -116,17 +122,17 @@ def detect_fn(image, detection_model):
     return detections
 
 
-def setup_model():
-    # Load pipeline config and build a detection model
-    configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
-    detection_model = model_builder.build(
-        model_config=configs["model"], is_training=False)
-
-    # Restore checkpoint
-    ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-    ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
-
-    return detection_model
+# def setup_model():
+#     # Load pipeline config and build a detection model
+#     configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
+#     detection_model = model_builder.build(
+#         model_config=configs["model"], is_training=False)
+#
+#     # Restore checkpoint
+#     ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
+#     ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
+#
+#     return detection_model
 
 
 def get_category_index():
@@ -153,7 +159,7 @@ def initialize_and_handle_objects(image_np_with_detections, hochregallager, filt
         if not hochregallager.grid_successfully_initialized:
             hochregallager.initialize_grid_coordinates()
 
-        hochregallager.assign_grid_positions(image_np_with_detections, hochregallager)
+        coord.assign_grid_positions(image_np_with_detections, hochregallager)
 
         # print(len(hochregallager.behaelter_obj_list))
         # print(hochregallager.behaelter_arr)

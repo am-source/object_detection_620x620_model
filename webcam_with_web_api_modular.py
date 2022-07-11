@@ -9,11 +9,6 @@ import coordinates
 
 
 app = Flask(__name__)
-hochregallager = Hochregallager()
-
-if __name__ == "__main__":
-    # app.run(debug=True)
-    app.run()
 
 
 ########## FLASK ROUTES ############################################################################
@@ -103,3 +98,10 @@ def create_behaelter_dict():
 
             dict_key_var += 1
     return behaelter_dict
+
+
+if __name__ == "__main__":
+    global hochregallager
+    hochregallager = Hochregallager()
+    # app.run(debug=True)
+    app.run()

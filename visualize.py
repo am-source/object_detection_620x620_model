@@ -67,8 +67,10 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
     """
     # put timer text for missing behaelter
+    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
     if not skip_missing_timer:
-        visualize_missing_behaelter_timer(image, hochregallager, text_font_size)
+        visualize_missing_behaelter_timer(image_pil, hochregallager, text_font_size)
+        np.copyto(image, np.array(image_pil))
 
     # by default only visualize 'Behaelter'
     if skip_werkstueck:
@@ -260,6 +262,7 @@ def draw_bounding_box_on_image_tmp(image,
 
 
 def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
+    draw = ImageDraw.Draw(image)
     # prepare vars needed to determine grid cell coordinates
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
@@ -267,29 +270,38 @@ def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
     grid_cell_width = grid_width_in_px*percent
     grid_cell_height = grid_height_in_px*percent
 
-    # putText only needs left and bottom coord
-    bottom = ymin
+    # put text in centre of the grid cell
+    top = ymin - (grid_cell_height*0.5)
     # grid shape: 3x3
     for row in range(3):
-        bottom = bottom + (grid_cell_height)
+        top = top + (grid_cell_height)
         left = (xmin - grid_cell_width)
         for column in range(3):
             left = left + (grid_cell_width)
 
             if hochregallager.grid_cell_timer_arr[row][column] != 0:
-                grid_cell_timer_val = hochregallager.get_grid_cell_timer_value(hochregallager, row, column)
+                grid_cell_timer_val = hochregallager.get_grid_cell_timer_value(row, column)
 
-                # visualize timer in image
-                font_size = text_font_size
-                font = ImageFont.truetype('arial.ttf', font_size)
-                # bottom left corner (x,y)
-                org = (int(left), int(bottom*0.95))
-                fontScale = 0.5
-                color = (255, 0, 0)
-                thickness = 1
-                cv2.putText(image, 'missing: {}s'.format(round(grid_cell_timer_val, 2)), org, font,
-                                   fontScale, color, thickness)
+                try:
+                    ################ FONT ###################
+                    font_size = text_font_size
+                    font = ImageFont.truetype('arial.ttf', font_size)
+                    ################ FONT ###################
 
+                except IOError:
+                    font = ImageFont.load_default()
+                display_str = 'missing:\n{}s'.format(round(grid_cell_timer_val, 2))
+                text_width, text_height = font.getsize(display_str)
+                text_bottom = top
+                margin = np.ceil(0.05 * text_height)
+                left = left + (grid_cell_width*0.5)
+                draw.text(
+                    (left + margin, text_bottom - text_height - margin),
+                    display_str,
+                    # fill takes RGBA value, A stands for alpha - opacity value
+                    fill=(0, 0, 255, 255),
+                    font=font,
+                    align='center')
 
 # # Filter methods
 
