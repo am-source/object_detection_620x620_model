@@ -23,19 +23,19 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     classes,
     scores,
     category_index,
-    visualize_werkstueck,
     behaelter_detections,
     hochregallager,
     use_normalized_coordinates=False,
     max_boxes_to_draw=20,
-    min_score_thresh=0.5,
     agnostic_mode=False,
     line_thickness=4,
-    mask_alpha=0.4,
     groundtruth_box_visualization_color="black",
+    skip_werkstueck=True,
+    skip_missing_timer = True,
     skip_boxes=False,
     skip_scores=False,
     skip_labels=False,
+    text_font_size = 16,
 ):
     """Args:
     image: uint8 numpy array with shape (img_height, img_width, 3)
@@ -47,7 +47,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
       boxes and plot all boxes as black with no classes or scores.
     category_index: a dict containing category dictionaries (each holding
       category index `id` and category name `name`) keyed by category indices.
-    visualize_werkstueck: whether to skip visualizing WerkStueck class
+    skip_werkstueck: whether to skip visualizing WerkStueck class
     use_normalized_coordinates: whether boxes is to be interpreted as
       normalized coordinates or not.
     max_boxes_to_draw: maximum number of boxes to visualize.  If None, draw
@@ -67,10 +67,11 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
     """
     # put timer text for missing behaelter
-    visualize_missing_behaelter_timer(image, hochregallager)
+    if not skip_missing_timer:
+        visualize_missing_behaelter_timer(image, hochregallager, text_font_size)
 
     # by default only visualize 'Behaelter'
-    if not visualize_werkstueck:
+    if skip_werkstueck:
         boxes, classes, scores = behaelter_detections
 
     box_to_display_str_map = collections.defaultdict(list)
@@ -169,11 +170,11 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
             ymax,
             xmax,
             color=color,
-            thickness=2,
-            #thickness=0 if skip_boxes else line_thickness,
+            thickness=0 if skip_boxes else line_thickness,
             # display_str_list=box_to_display_str_map[box],
             display_str_list=str_list[tmp_i],
             use_normalized_coordinates=use_normalized_coordinates,
+            bounding_box_font_size=text_font_size,
         )
         np.copyto(image, np.array(image_pil))
         tmp_i += 1
@@ -191,7 +192,8 @@ def draw_bounding_box_on_image_tmp(image,
                                    color='red',
                                    thickness=4,
                                    display_str_list=(),
-                                   use_normalized_coordinates=True):
+                                   use_normalized_coordinates=True,
+                                   bounding_box_font_size=24):
     """
     Args:
     image: a PIL.Image object.
@@ -222,9 +224,8 @@ def draw_bounding_box_on_image_tmp(image,
     try:
 
         ################ FONT ###################
-        font_size = 24
+        font_size = bounding_box_font_size
         font = ImageFont.truetype('arial.ttf', font_size)
-
         ################ FONT ###################
 
     except IOError:
@@ -258,7 +259,7 @@ def draw_bounding_box_on_image_tmp(image,
 #############################################################################################
 
 
-def visualize_missing_behaelter_timer(image, hochregallager):
+def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
     # prepare vars needed to determine grid cell coordinates
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
@@ -279,12 +280,13 @@ def visualize_missing_behaelter_timer(image, hochregallager):
                 grid_cell_timer_val = hochregallager.get_grid_cell_timer_value(hochregallager, row, column)
 
                 # visualize timer in image
-                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_size = text_font_size
+                font = ImageFont.truetype('arial.ttf', font_size)
                 # bottom left corner (x,y)
                 org = (int(left), int(bottom*0.95))
-                fontScale = 1
+                fontScale = 0.5
                 color = (255, 0, 0)
-                thickness = 2
+                thickness = 1
                 cv2.putText(image, 'missing: {}s'.format(round(grid_cell_timer_val, 2)), org, font,
                                    fontScale, color, thickness)
 

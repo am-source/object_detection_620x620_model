@@ -513,8 +513,8 @@ def detect_fn(image):
 
 # COLOR THRESHOLDS
 # 110 lower bounds to make sure white(/black) isn't mistakenly recognized
-lower_sat = 110
-lower_val = 110
+lower_sat = 60
+lower_val = 25
 upper_sat = 255
 upper_val = 255
 

@@ -74,19 +74,29 @@ def handle_detection(camera, hochregallager):
     # ############ Behaelter (and indirect Wkstk) initilaized #####################################
 
     ##############  visualize  ################################################
+    # line_thickness concerns box outline, depending on webcam resolution (and possibly distance of objects) needs to be modified
+    # skip_boxes sets line_thickness to 0
+    # skip_werkstueck: whether to skip visualizing WerkStueck class
+    # skip_missing_timer: whether to skip visualizing timer in sec at grid cell position
+    # text_font_size: depending on webcam resolution (and possibly distance of objects) needs to be modified
     visualize.visualize_boxes_and_labels_for_behaelter_and_werkstueck(
         image_np_with_detections,
         boxes,
         classes,
         scores,
         category_index,
-        visualize_werkstueck=False,
         behaelter_detections=filtered_Behaelter_detections,
         hochregallager=hochregallager,
         use_normalized_coordinates=True,
         max_boxes_to_draw=20,
-        min_score_thresh=min_score_threshold,
         agnostic_mode=False,
+        line_thickness=2,
+        skip_werkstueck=True,
+        skip_missing_timer=True,
+        skip_boxes=False,
+        skip_scores=False,
+        skip_labels=False,
+        text_font_size=16,
     )
 
     return image_np_with_detections
