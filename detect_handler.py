@@ -95,13 +95,13 @@ def handle_detection(camera, hochregallager):
         hochregallager=hochregallager,
         use_normalized_coordinates=True,
         max_boxes_to_draw=20,
-        agnostic_mode=False,
+        agnostic_mode=True,
         line_thickness=2,
         skip_werkstueck=True,
         skip_missing_timer=False,
-        skip_boxes=True,
+        skip_boxes=False,
         skip_scores=True,
-        skip_labels=True,
+        skip_labels=False,
         text_font_size=16,
     )
 
@@ -159,7 +159,7 @@ def initialize_and_handle_objects(image_np_with_detections, hochregallager, filt
         if not hochregallager.grid_successfully_initialized:
             hochregallager.initialize_grid_coordinates()
 
-        coord.assign_grid_positions(image_np_with_detections, hochregallager)
+        coord.assign_grid_positions(hochregallager)
 
         # print(len(hochregallager.behaelter_obj_list))
         # print(hochregallager.behaelter_arr)

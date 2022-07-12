@@ -30,11 +30,14 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     line_thickness=4,
     groundtruth_box_visualization_color="black",
     skip_werkstueck=True,
-    skip_missing_timer = True,
+    skip_missing_timer=True,
     skip_boxes=False,
-    skip_scores=False,
+    skip_scores=True,
     skip_labels=False,
-    text_font_size = 16,
+    skip_pos=True,
+    skip_coord=True,
+    skip_grid_outline=True,
+    text_font_size=16,
 ):
     """Args:
     image: uint8 numpy array with shape (img_height, img_width, 3)
@@ -46,28 +49,39 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
       boxes and plot all boxes as black with no classes or scores.
     category_index: a dict containing category dictionaries (each holding
       category index `id` and category name `name`) keyed by category indices.
-    skip_werkstueck: whether to skip visualizing WerkStueck class
+    behaelter_detections: filtered detections (boxes,classes,scores) containing only behaelter class
+    hochregallager: instance of Hochregallager
     use_normalized_coordinates: whether boxes is to be interpreted as
       normalized coordinates or not.
     max_boxes_to_draw: maximum number of boxes to visualize.  If None, draw
       all boxes.
-    min_score_thresh: minimum score threshold for a box or keypoint to be
-      visualized.
     agnostic_mode: boolean (default: False) controlling whether to evaluate in
       class-agnostic mode or not.  This mode will display scores but ignore
       classes.
     line_thickness: integer (default: 4) controlling line width of the boxes.
-    mask_alpha: transparency value between 0 and 1 (default: 0.4).
     groundtruth_box_visualization_color: box color for visualizing groundtruth
       boxes
+    skip_werkstueck: whether to skip visualizing WerkStueck class
+    skip_missing_timer: whether to skip visualizing timer for missing Behaelter
     skip_boxes: whether to skip the drawing of bounding boxes.
     skip_scores: whether to skip score when drawing a single detection
     skip_labels: whether to skip label when drawing a single detection
+    skip_pos: whether to skip adding position of Behaelter/WerkStueck in the Hochregallager to label
+    skip_coord: whether to skip adding adding coordinates of Behaelter/WerkStueck in the Hochregallager to label
+    skip_grid_outline: whether to skip visualizing Hochregallager grid outline
+    text_font_size: controls font size of bounding box labels as well as missing timer text
     uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
     """
+    # visualize Hochregallager grid outline
+    if (hochregallager.coordinates is not None) and (not skip_grid_outline):
+        # convert image for PIL methods
+        image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
+        visualize_hochregallager_grid_outline(image_pil, hochregallager, line_thickness)
+        np.copyto(image, np.array(image_pil))
+
     # put timer text for missing behaelter
-    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
     if not skip_missing_timer:
+        image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         visualize_missing_behaelter_timer(image_pil, hochregallager, text_font_size)
         np.copyto(image, np.array(image_pil))
 
@@ -75,7 +89,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     if skip_werkstueck:
         boxes, classes, scores = behaelter_detections
 
-    box_to_display_str_map = collections.defaultdict(list)
     str_list = []
     box_to_color_map = collections.defaultdict(str)
     for i in range(boxes.shape[0]):
@@ -94,49 +107,51 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                     else:
                         class_name = "N/A"
                     display_str = str(class_name)
-                ################
+                # handle Behaelter case
                 if category_index[classes[i]]["name"] == "Behaelter":
                     pos = hochregallager.get_behaelter_pos_by_behaelter_box(
                         image, box)
-                    # print("FIRST pos: {}".format(pos))
                     behaelter = hochregallager.get_behaelter_obj_by_behaelter_box(
                         image, box)
-                    if pos is None:
-                        display_str2 = "POS: N/A"
-                    else:
-                        row, column = pos
-                        display_str2 = "POS: {}x{}".format(row, column)
-
-                    ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
-                        image, box, hochregallager)
-                    display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
-                        display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
+                    if not skip_pos:
+                        if pos is None:
+                            display_str2 = "POS: N/A"
+                        else:
+                            row, column = pos
+                            display_str2 = "POS: {}x{}".format(row, column)
+                    if not skip_coord:
+                        ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
+                            box, hochregallager)
+                        display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
+                            display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
                     if behaelter.empty:
                         display_str = "{}(EMPTY)".format(display_str)
                     else:
                         display_str = "{}(filled, {})".format(
                             display_str, behaelter.werk_stueck.color
                         )
-                ################
+                # handle WerkStueck case
                 if category_index[classes[i]]["name"] == "WerkStueck":
-                    pos = hochregallager.get_werkstueck_pos_by_werkstueck_box(
-                        image, box)
-                    if pos is None:
-                        display_str2 = "POS: N/A"
-                    else:
-                        row, column = pos
-                        display_str2 = "POS: {}x{}".format(row, column)
-                    ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
-                        image, box, hochregallager)
-                    display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
-                        display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
+                    if not skip_pos:
+                        pos = hochregallager.get_werkstueck_pos_by_werkstueck_box(
+                            image, box)
+                        if pos is None:
+                            display_str2 = "POS: N/A"
+                        else:
+                            row, column = pos
+                            display_str2 = "POS: {}x{}".format(row, column)
+                    if not skip_coord:
+                        ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
+                            box, hochregallager)
+                        display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
+                            display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
 
                     wkstk_color = color_detector.detect_color_in_bounding_box(
                         image, box, use_normalized_coordinates
                     )
                     display_str = "{}(Color:{})".format(
                         display_str, wkstk_color)
-                ################
+
             if not skip_scores:
                 if not display_str:
                     display_str = "{}%".format(round(100 * scores[i]))
@@ -150,7 +165,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                 display_str_list = [str(display_str), str(display_str2)]
 
             str_list.append(display_str_list)
-            # box_to_display_str_map[box].append(display_str_list)
+
             if agnostic_mode:
                 box_to_color_map[box] = "DarkOrange"
             else:
@@ -162,7 +177,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     tmp_i = 0
     for box, color in box_to_color_map.items():
         ymin, xmin, ymax, xmax = box
-        # viz_utils.draw_bounding_box_on_image_array(
+
         image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         draw_bounding_box_on_image_tmp(
             image_pil,
@@ -172,7 +187,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
             xmax,
             color=color,
             thickness=0 if skip_boxes else line_thickness,
-            # display_str_list=box_to_display_str_map[box],
             display_str_list=str_list[tmp_i],
             use_normalized_coordinates=use_normalized_coordinates,
             bounding_box_font_size=text_font_size,
@@ -181,8 +195,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
         tmp_i += 1
 
     return image
-
-#############################################################################################
 
 
 def draw_bounding_box_on_image_tmp(image,
@@ -257,7 +269,6 @@ def draw_bounding_box_on_image_tmp(image,
             fill='black',
             font=font)
         text_bottom -= text_height - 2 * margin
-#############################################################################################
 
 
 def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
@@ -302,14 +313,14 @@ def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
                     font=font,
                     align='center')
 
-# # Filter methods
 
-# params
-#boxes = detections['detection_boxes']
-#classes = detections['detection_classes']+label_id_offset
-#scores = detections['detection_scores']
+def visualize_hochregallager_grid_outline(image, hochregallager, thickness):
+    draw = ImageDraw.Draw(image)
+    top, left, bottom, right = hochregallager.coordinates
+    draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill="red")
+
+
 def filter_detections_by_score(boxes, classes, scores, min_score_thresh):
-
     # Create an empty (boolean) list for filtering detections
     filter_arr = []
 
@@ -328,12 +339,7 @@ def filter_detections_by_score(boxes, classes, scores, min_score_thresh):
     return (filtered_boxes, filtered_classes, filtered_scores)
 
 
-# params
-#boxes = detections['detection_boxes']
-#classes = detections['detection_classes']+label_id_offset
-#scores = detections['detection_scores']
 def filter_detections_by_class(boxes, classes, scores, category_index):
-
     # Create an empty (boolean) list for filtering detections
     filter_arr_WerkStueck = []
 

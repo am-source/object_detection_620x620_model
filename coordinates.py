@@ -105,7 +105,6 @@ def get_approx_hochregallager_grid_coordinates(hochregallager):
         0].bounding_box[1], behaelter_list[0].bounding_box[2], behaelter_list[0].bounding_box[3]
 
     for behaelter in behaelter_list:
-        # print(type(behaelter))
         new_ymin, new_xmin, new_ymax, new_xmax = behaelter.bounding_box
         if ymin_test > new_ymin:
             ymin_test = new_ymin
@@ -115,24 +114,6 @@ def get_approx_hochregallager_grid_coordinates(hochregallager):
             ymax_test = new_ymax
         if xmax_test < new_xmax:
             xmax_test = new_xmax
-
-        # REMOVE
-        #image_np_for_grid = image_np_with_detections.copy()
-        #start_point = (int(new_xmin), int(new_ymin))
-        # Ending coordinate, here (220, 220)
-        # represents the bottom right corner of rectangle
-        #end_point = (int(new_xmax), int(new_ymax))
-        # Blue color in BGR
-        #color = (255, 255, 0)
-        # Line thickness of 2 px
-        #thickness = 4
-        # Using cv2.rectangle() method
-        # Draw a rectangle with blue line borders of thickness of 2 px
-        #cv2.rectangle(image_np_with_detections, start_point, end_point, color, thickness)
-        #cv2.polylines(image_np_with_detections, (top, left, bottom, right), True, (0, 0, 0), 4)
-        #cv2.imshow("object detection", cv2.resize(image_np_for_grid, (1500, 1200)))
-        # cv2.waitKey(0)
-
     return (ymin_test, xmin_test, ymax_test, xmax_test)
 
 
@@ -146,26 +127,9 @@ def get_approx_hochregallager_grid_height(hochregallager):
     return ymax-ymin
 
 
-def assign_grid_positions(image, hochregallager):
+def assign_grid_positions(hochregallager):
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
-
-    # REMOVE
-    start_point = (int(hochregallager.coordinates[1]), int(
-        hochregallager.coordinates[0]))
-    # Ending coordinate, here (220, 220)
-    # represents the bottom right corner of rectangle
-    end_point = (int(hochregallager.coordinates[3]), int(
-        hochregallager.coordinates[2]))
-    # Blue color in BGR
-    color = (255, 255, 0)
-    # Line thickness of 2 px
-    thickness = 4
-    # Using cv2.rectangle() method
-    # Draw a rectangle with blue line borders of thickness of 2 px
-    cv2.rectangle(image, start_point,
-                  end_point, color, thickness)
-    #cv2.polylines(image_np_with_detections, (top, left, bottom, right), True, (0, 0, 0), 4)
 
     # create a numpy 2d arr for bounding boxes of hochregallager.behaelter_obj_list (needed for bounding_box_intersect)
     tmp_list = []
@@ -235,9 +199,7 @@ def assign_grid_positions(image, hochregallager):
                         row=i, column=j, current_time=current_time)
 
 
-def get_box_coord_relative_to_grid_coord(image, box, hochregallager):
-    im_height = image.shape[0]
-    im_width = image.shape[1]
+def get_box_coord_relative_to_grid_coord(box, hochregallager):
     h_ymin, h_xmin, _, _ = hochregallager.coordinates
     b_ymin, b_xmin, b_ymax, b_xmax = box
     relative_ymin = b_ymin - h_ymin
@@ -245,10 +207,3 @@ def get_box_coord_relative_to_grid_coord(image, box, hochregallager):
     relative_ymax = b_ymax - h_ymin
     relative_xmax = b_xmax - h_xmin
     return (relative_ymin, relative_xmin, relative_ymax, relative_xmax)
-
-
-# # Timer for missing Behaelter
-
-# In[7]:
-
-
