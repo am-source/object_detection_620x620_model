@@ -122,19 +122,6 @@ def detect_fn(image, detection_model):
     return detections
 
 
-# def setup_model():
-#     # Load pipeline config and build a detection model
-#     configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
-#     detection_model = model_builder.build(
-#         model_config=configs["model"], is_training=False)
-#
-#     # Restore checkpoint
-#     ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-#     ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
-#
-#     return detection_model
-
-
 def get_category_index():
     category_index = label_map_util.create_category_index_from_labelmap(
         ANNOTATION_PATH + "/label_map.pbtxt"

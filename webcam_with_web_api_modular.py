@@ -74,10 +74,10 @@ def create_behaelter_dict():
             else:
                 behaelter = hochregallager.behaelter_arr[row][column]
                 # param hochregallager.image here is for img width and height
-                ymin, xmin, ymax, xmax = coordinates.get_box_coord_relative_to_grid_coord(
+                ymin, xmin, _, _ = coordinates.get_box_coord_relative_to_grid_coord(
                     behaelter.bounding_box, hochregallager
                 )
-                coords = str((round(ymin, 2), round(xmin, 2), round(ymax, 2), round(xmax, 2)))
+                coords = str((round(ymin, 2), round(xmin, 2)))
                 score = str(behaelter.score)
                 filled = not behaelter.empty
                 if filled:
@@ -89,7 +89,7 @@ def create_behaelter_dict():
                 missing = "N/A"
 
             behaelter_dict[dict_key_var] = {
-                # coords = ymin, xmin, ymax, xmax or "N/A"
+                # coords = ymin, xmin or "N/A"
                 "coords": coords,
                 "score": score,
                 "filled": filled,
