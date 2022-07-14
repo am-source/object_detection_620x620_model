@@ -11,7 +11,7 @@
     <script>
 
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-            (function(){
+                        (function(){
                 $.getJSON(
                     $SCRIPT_ROOT+"/_stuff",
                     function(data) {
@@ -24,70 +24,41 @@
                             var b7_dict = data.pos_dict[7]
                             var b8_dict = data.pos_dict[8]
                             var b9_dict = data.pos_dict[9]
+                            var dict_arr = [b1_dict, b2_dict, b3_dict, b4_dict, b5_dict, b6_dict, b7_dict, b8_dict, b9_dict]
 
-<!--                            update behaelter 1 (0x0) divs-->
-                            $("#0x0_coords").text(data.pos_dict["1"]["coords"])
-                            $("#0x0_score").text(data.pos_dict["1"]["score"])
-                            $("#0x0_filled").text(data.pos_dict["1"]["filled"])
-                            $("#0x0_wkstk_score").text(data.pos_dict["1"]["wkstk_score"])
-                            $("#0x0_color").text(data.pos_dict["1"]["color"])
-                            $("#0x0_missing").text(data.pos_dict["1"]["missing"])
-<!--                            update behaelter 2 (0x1) divs-->
-                            $("#0x1_coords").text(b2_dict["coords"])
-                            $("#0x1_score").text(b2_dict["score"])
-                            $("#0x1_filled").text(b2_dict["filled"])
-                            $("#0x1_wkstk_score").text(b2_dict["wkstk_score"])
-                            $("#0x1_color").text(b2_dict["color"])
-                            $("#0x1_missing").text(b2_dict["missing"])
-<!--                            update behaelter 3 (0x2) divs-->
-                            $("#0x2_coords").text(b3_dict["coords"])
-                            $("#0x2_score").text(b3_dict["score"])
-                            $("#0x2_filled").text(b3_dict["filled"])
-                            $("#0x2_wkstk_score").text(b3_dict["wkstk_score"])
-                            $("#0x2_color").text(b3_dict["color"])
-                            $("#0x2_missing").text(b3_dict["missing"])
-<!--                            update behaelter 4 (1x0) divs-->
-                            $("#1x0_coords").text(b4_dict["coords"])
-                            $("#1x0_score").text(b4_dict["score"])
-                            $("#1x0_filled").text(b4_dict["filled"])
-                            $("#1x0_wkstk_score").text(b4_dict["wkstk_score"])
-                            $("#1x0_color").text(b4_dict["color"])
-                            $("#1x0_missing").text(b4_dict["missing"])
-<!--                            update behaelter 5 (1x1) divs-->
-                            $("#1x1_coords").text(b5_dict["coords"])
-                            $("#1x1_score").text(b5_dict["score"])
-                            $("#1x1_filled").text(b5_dict["filled"])
-                            $("#1x1_wkstk_score").text(b5_dict["wkstk_score"])
-                            $("#1x1_color").text(b5_dict["color"])
-                            $("#1x1_missing").text(b5_dict["missing"])
-<!--                            update behaelter 6 (1x2) divs-->
-                            $("#1x2_coords").text(b6_dict["coords"])
-                            $("#1x2_score").text(b6_dict["score"])
-                            $("#1x2_filled").text(b6_dict["filled"])
-                            $("#1x2_wkstk_score").text(b6_dict["wkstk_score"])
-                            $("#1x2_color").text(b6_dict["color"])
-                            $("#1x2_missing").text(b6_dict["missing"])
-<!--                            update behaelter 7 (2x0) divs-->
-                            $("#2x0_coords").text(b7_dict["coords"])
-                            $("#2x0_score").text(b7_dict["score"])
-                            $("#2x0_filled").text(b7_dict["filled"])
-                            $("#2x0_wkstk_score").text(b7_dict["wkstk_score"])
-                            $("#2x0_color").text(b7_dict["color"])
-                            $("#2x0_missing").text(b7_dict["missing"])
-<!--                            update behaelter 8 (2x1) divs-->
-                            $("#2x1_coords").text(b8_dict["coords"])
-                            $("#2x1_score").text(b8_dict["score"])
-                            $("#2x1_filled").text(b8_dict["filled"])
-                            $("#2x1_wkstk_score").text(b8_dict["wkstk_score"])
-                            $("#2x1_color").text(b8_dict["color"])
-                            $("#2x1_missing").text(b8_dict["missing"])
-<!--                            update behaelter 9 (2x2) divs-->
-                            $("#2x2_coords").text(b9_dict["coords"])
-                            $("#2x2_score").text(b9_dict["score"])
-                            $("#2x2_filled").text(b9_dict["filled"])
-                            $("#2x2_wkstk_score").text(b9_dict["wkstk_score"])
-                            $("#2x2_color").text(b9_dict["color"])
-                            $("#2x2_missing").text(b9_dict["missing"])
+                            let i = 1
+                            for (let tmp_dict of dict_arr) {
+                                $(`#b${i}_coords`).text(tmp_dict["coords"])
+                                $(`#b${i}_score`).text(tmp_dict["score"])
+                                $(`#b${i}_filled`).text(tmp_dict["filled"])
+                                $(`#b${i}_wkstk_score`).text(tmp_dict["wkstk_score"])
+                                $(`#b${i}_color`).text(tmp_dict["color"])
+                                $(`#b${i}_missing`).text(tmp_dict["missing"])
+                                if (tmp_dict["filled"] == "True" && tmp_dict["color"] != "UNDECIDED") {
+                                    let color = tmp_dict["color"].toLowerCase();
+<!--                                    change color .card-header of current loop element-->
+                                    $(`#b${i}_coords`).parents(".card-main").siblings().css("background-color", color);
+                                    let border = `1px solid ${color}`
+<!--                                    change color card outline of current loop element-->
+                                    $(`#b${i}_coords`).parents(".card").css("border", border);
+<!--                                    change color of text for filled, score, color-->
+                                    $(`#b${i}_filled`).css("color", color);
+                                    $(`#b${i}_wkstk_score`).css("color", color);
+                                    $(`#b${i}_color`).css("color", color);
+
+                                }
+                                else {
+                                    let color = "blue"
+                                    if ((i % 3) != 0) {
+                                        color = "#979797"
+                                    }
+                                    $(`#b${i}_coords`).parents(".card-main").siblings().css("background-color", color);
+                                    let border = `1px solid ${color}`
+                                    $(`#b${i}_coords`).parents(".card").css("border", border);
+                                }
+
+                                i++;
+                            }
                     }
                 );
                 setTimeout(arguments.callee, 3000);
@@ -147,12 +118,13 @@
       border-radius: 4px;           /* Slightly Curve edges */
       overflow: hidden;             /* Fixes the corners */
       margin: 5px;                  /* Add space between cards */
+      font-size: 20px;
     }
 
     .card-header {
       color: #eeeeee;
       text-align: center;
-      font-size: 12px;
+<!--      font-size: 18px;-->
       font-weight: 600;
       border-bottom: 1px solid #979797;
       background-color: #979797;
@@ -166,19 +138,6 @@
       align-items: left;        /* Group Children in Center (on cross axis) */
       padding: 15px 0;            /* Add padding to the top/bottom */
     }
-
-    .material-icons {
-      font-size: 36px;
-      color: #0097A7;
-      margin-bottom: 5px;
-    }
-
-    .main-description {
-      color: #979797;
-      font-size: 12px;
-      text-align: center;
-    }
-
 
     h1 {
         text-align: center;
@@ -220,27 +179,27 @@
                             <div class="main-description" id="pos_0x0"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="0x0_coords">N/A</div>
+                                <div class="card-right" id="b1_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="0x0_score"></div>
+                                <div class="card-right" id="b1_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="0x0_filled"></div>
+                                <div class="card-right" id="b1_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="0x0_wkstk_score"></div>
+                                <div class="card-right" id="b1_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="0x0_color"></div>
+                                <div class="card-right" id="b1_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="0x0_missing"></div>
+                                <div class="card-right" id="b1_missing"></div>
                             </div>
 
 
@@ -253,27 +212,27 @@
                             <div class="main-description" id="pos_0x1"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="0x1_coords"></div>
+                                <div class="card-right" id="b2_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="0x1_score"></div>
+                                <div class="card-right" id="b2_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="0x1_filled"></div>
+                                <div class="card-right" id="b2_filled"></div>
                             </div>
                             <div class="wkstk_score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="0x1_wkstk_score"></div>
+                                <div class="card-right" id="b2_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="0x1_color"></div>
+                                <div class="card-right" id="b2_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="0x1_missing"></div>
+                                <div class="card-right" id="b2_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -284,27 +243,27 @@
                             <div class="main-description" id="pos_0x2"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="0x2_coords"></div>
+                                <div class="card-right" id="b3_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="0x2_score"></div>
+                                <div class="card-right" id="b3_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="0x2_filled"></div>
+                                <div class="card-right" id="b3_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="0x2_wkstk_score"></div>
+                                <div class="card-right" id="b3_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="0x2_color"></div>
+                                <div class="card-right" id="b3_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="0x2_missing"></div>
+                                <div class="card-right" id="b3_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -318,27 +277,27 @@
                             <div class="main-description" id="pos_1x0"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="1x0_coords"></div>
+                                <div class="card-right" id="b4_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="1x0_score"></div>
+                                <div class="card-right" id="b4_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="1x0_filled"></div>
+                                <div class="card-right" id="b4_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="1x0_wkstk_score"></div>
+                                <div class="card-right" id="b4_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="1x0_color"></div>
+                                <div class="card-right" id="b4_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="1x0_missing"></div>
+                                <div class="card-right" id="b4_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -349,27 +308,27 @@
                             <div class="main-description" id="pos_1x1"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="1x1_coords"></div>
+                                <div class="card-right" id="b5_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="1x1_score"></div>
+                                <div class="card-right" id="b5_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled: </div>
-                                <div class="card-right" id="1x1_filled"></div>
+                                <div class="card-right" id="b5_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="1x1_wkstk_score"></div>
+                                <div class="card-right" id="b5_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="1x1_color"></div>
+                                <div class="card-right" id="b5_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="1x1_missing"></div>
+                                <div class="card-right" id="b5_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -380,27 +339,27 @@
                             <div class="main-description" id="pos_1x2"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="1x2_coords"></div>
+                                <div class="card-right" id="b6_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="1x2_score"></div>
+                                <div class="card-right" id="b6_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="1x2_filled"></div>
+                                <div class="card-right" id="b6_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="1x2_wkstk_score"></div>
+                                <div class="card-right" id="b6_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="1x2_color"></div>
+                                <div class="card-right" id="b6_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="1x2_missing"></div>
+                                <div class="card-right" id="b6_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -414,27 +373,27 @@
                             <div class="main-description" id="pos_2x0"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="2x0_coords"></div>
+                                <div class="card-right" id="b7_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="2x0_score"></div>
+                                <div class="card-right" id="b7_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="2x0_filled"></div>
+                                <div class="card-right" id="b7_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="2x0_wkstk_score"></div>
+                                <div class="card-right" id="b7_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="2x0_color"></div>
+                                <div class="card-right" id="b7_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="2x0_missing"></div>
+                                <div class="card-right" id="b7_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -445,27 +404,27 @@
                             <div class="main-description" id="pos_2x1"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="2x1_coords"></div>
+                                <div class="card-right" id="b8_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="2x1_score"></div>
+                                <div class="card-right" id="b8_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="2x1_filled"></div>
+                                <div class="card-right" id="b8_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="2x1_wkstk_score"></div>
+                                <div class="card-right" id="b8_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="2x1_color"></div>
+                                <div class="card-right" id="b8_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="2x1_missing"></div>
+                                <div class="card-right" id="b8_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -476,27 +435,27 @@
                             <div class="main-description" id="pos_2x2"></div>
                             <div class="behaelter coords">
                                 <div class="card-left">Coordinates (Top, Left):&nbsp;</div>
-                                <div class="card-right" id="2x2_coords"></div>
+                                <div class="card-right" id="b9_coords"></div>
                             </div>
                             <div class="behaelter score">
                                 <div class="card-left">Behaelter score:&nbsp;</div>
-                                <div class="card-right" id="2x2_score"></div>
+                                <div class="card-right" id="b9_score"></div>
                             </div>
                             <div class="behaelter filled">
                                 <div class="card-left">Filled:&nbsp;</div>
-                                <div class="card-right" id="2x2_filled"></div>
+                                <div class="card-right" id="b9_filled"></div>
                             </div>
                             <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
-                                <div class="card-right" id="2x2_wkstk_score"></div>
+                                <div class="card-right" id="b9_wkstk_score"></div>
                             </div>
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
-                                <div class="card-right" id="2x2_color"></div>
+                                <div class="card-right" id="b9_color"></div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="2x2_missing"></div>
+                                <div class="card-right" id="b9_missing"></div>
                             </div>
                         </div>
                     </div>

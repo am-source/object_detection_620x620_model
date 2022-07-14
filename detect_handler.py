@@ -142,11 +142,11 @@ def initialize_and_handle_objects(image_np_with_detections, hochregallager, filt
         hochregallager.add_behaelter(behaelter)
 
     # handle grid initialize & assign
+    # objects need to be present to process
     if len(hochregallager.behaelter_obj_list) >= 1:
-        if not hochregallager.grid_successfully_initialized:
+        # only assign grid pos if 9 Behaelter were detected, otherwise the positions would be wrong
+        if hochregallager.grid_successfully_initialized:
+            coord.assign_grid_positions(hochregallager)
+        # if less than 9 Behaelter were detected in the last iteration, try to initialize the grid again
+        else:
             hochregallager.initialize_grid_coordinates()
-
-        coord.assign_grid_positions(hochregallager)
-
-        # print(len(hochregallager.behaelter_obj_list))
-        # print(hochregallager.behaelter_arr)
