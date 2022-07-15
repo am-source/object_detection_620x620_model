@@ -160,7 +160,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                         display_str, round(100 * scores[i]))
 
             if display_str2 == "":
-                display_str_list = display_str
+                display_str_list = [display_str]
             else:
                 display_str_list = [str(display_str), str(display_str2)]
 

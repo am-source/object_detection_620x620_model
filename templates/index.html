@@ -10,6 +10,44 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script>
 
+            function get_RGB_from_id(element_id, colorName) {
+                // Create fake div
+                let fakeDiv = document.createElement("div");
+                fakeDiv.style.color = colorName;
+                document.body.appendChild(fakeDiv);
+
+                // Get color of div
+                let cs = window.getComputedStyle(fakeDiv),
+                    pv = cs.getPropertyValue("color");
+
+                // Remove div after obtaining desired color value
+                document.body.removeChild(fakeDiv);
+
+
+<!--                since the color has already been assinged, when it's called again, it's returned in RGB-->
+<!--                let color = $(element_id).css("background-color");-->
+                console.log("COLOR WAS: " + pv);
+                return pv;
+            }
+
+            function getColorBrightness(element_id, rgba_color) {
+                let color = get_RGB_from_id(element_id, rgba_color);
+                color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+
+                r = color[1];
+                g = color[2];
+                b = color[3];
+
+<!--                 HSP equation from http://alienryderflex.com/hsp.html-->
+                hsp = Math.sqrt( 0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b) );
+                if (hsp>127.5) {
+                    return 'light';
+                }
+                else {
+                    return 'dark';
+                }
+            }
+
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
                         (function(){
                 $.getJSON(
@@ -32,29 +70,38 @@
                                 $(`#b${i}_score`).text(tmp_dict["score"])
                                 $(`#b${i}_filled`).text(tmp_dict["filled"])
                                 $(`#b${i}_wkstk_score`).text(tmp_dict["wkstk_score"])
-                                $(`#b${i}_color`).text(tmp_dict["color"])
+                                $(`#b${i}_color`).text(tmp_dict["color"] + "  ")
                                 $(`#b${i}_missing`).text(tmp_dict["missing"])
-                                if (tmp_dict["filled"] == "True" && tmp_dict["color"] != "UNDECIDED") {
+                                if (tmp_dict["color"] != "N/A" && tmp_dict["color"] != "UNDECIDED") {
                                     let color = tmp_dict["color"].toLowerCase();
 <!--                                    change color .card-header of current loop element-->
                                     $(`#b${i}_coords`).parents(".card-main").siblings().css("background-color", color);
                                     let border = `1px solid ${color}`
 <!--                                    change color card outline of current loop element-->
                                     $(`#b${i}_coords`).parents(".card").css("border", border);
+
+                                    $(`#b${i}_color_cell`).css("background-color", color);
+
+                                }
+<!--                                if no wkstk is detected, then change css values back-->
+                                else {
+                                    let color = "#979797"
+<!--                                    change color .card-header of current loop element-->
+                                    $(`#b${i}_coords`).parents(".card-main").siblings().css("background-color", color);
+                                    let border = `1px solid ${color}`
+<!--                                    change color card outline of current loop element-->
+                                    $(`#b${i}_coords`).parents(".card").css("border", border);
+
+                                    $(`#b${i}_color_cell`).css("background-color", color);
+
 <!--                                    change color of text for filled, score, color-->
+                                    color = "black"
                                     $(`#b${i}_filled`).css("color", color);
                                     $(`#b${i}_wkstk_score`).css("color", color);
                                     $(`#b${i}_color`).css("color", color);
 
-                                }
-                                else {
-                                    let color = "blue"
-                                    if ((i % 3) != 0) {
-                                        color = "#979797"
-                                    }
-                                    $(`#b${i}_coords`).parents(".card-main").siblings().css("background-color", color);
-                                    let border = `1px solid ${color}`
-                                    $(`#b${i}_coords`).parents(".card").css("border", border);
+
+
                                 }
 
                                 i++;
@@ -122,7 +169,7 @@
     }
 
     .card-header {
-      color: #eeeeee;
+      color: black;
       text-align: center;
 <!--      font-size: 18px;-->
       font-weight: 600;
@@ -156,7 +203,13 @@
     }
 
     .card-right {
-        float: left
+        float: left;
+        white-space: pre-wrap
+    }
+
+    .card-right-2 {
+        float: left;
+        width: 30px
     }
 
 
@@ -196,6 +249,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b1_color"></div>
+                                <div class="card-right-2" id="b1_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -229,10 +283,11 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b2_color"></div>
+                                <div class="card-right-2" id="b2_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
-                                <div class="card-right" id="b2_missing"></div>
+                                <div class="card-right-2" id="b2_missing"></div>
                             </div>
                         </div>
                     </div>
@@ -260,6 +315,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b3_color"></div>
+                                <div class="card-right-2" id="b3_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -294,6 +350,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b4_color"></div>
+                                <div class="card-right-2" id="b4_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -315,7 +372,7 @@
                                 <div class="card-right" id="b5_score"></div>
                             </div>
                             <div class="behaelter filled">
-                                <div class="card-left">Filled: </div>
+                                <div class="card-left">Filled:&nbsp; </div>
                                 <div class="card-right" id="b5_filled"></div>
                             </div>
                             <div class="wkstk score">
@@ -325,6 +382,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b5_color"></div>
+                                <div class="card-right-2" id="b5_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -356,6 +414,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b6_color"></div>
+                                <div class="card-right-2" id="b6_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -390,6 +449,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b7_color"></div>
+                                <div class="card-right-2" id="b7_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -421,6 +481,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b8_color"></div>
+                                <div class="card-right-2" id="b8_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
@@ -452,6 +513,7 @@
                             <div class="behaelter color">
                                 <div class="card-left">Werkstueck color:&nbsp;</div>
                                 <div class="card-right" id="b9_color"></div>
+                                <div class="card-right-2" id="b9_color_cell">&nbsp;</div>
                             </div>
                             <div class="behaelter missing">
                                 <div class="card-left">Missing (sec):&nbsp;</div>
