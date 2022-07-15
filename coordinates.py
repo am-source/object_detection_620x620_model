@@ -178,7 +178,12 @@ def assign_grid_positions(hochregallager):
                 if hochregallager.behaelter_arr[i][j] is None:
                     hochregallager.assign_grid_pos(
                         behaelter_obj, row=i, column=j)
-                    hochregallager.stop_grid_cell_timer(row=i, column=j)
+                    # covers the case where this is the first iteration after launching the program. Since no timer was
+                    # started beforehand, there is no running timer to stop
+                    if hochregallager.grid_cell_timer_arr[i][j] == 0:
+                        pass
+                    else:
+                        hochregallager.stop_grid_cell_timer(row=i, column=j)
                 # grid cell is filled and was filled before
                 else:
                     # update behaelter obj, possibly changing wkstk color and/or scores

@@ -64,16 +64,15 @@ def create_behaelter_dict():
                 filled = "N/A"
                 wkstk_score = "N/A"
                 color = "N/A"
-                # in case the behaelter hasn't been detected yet (for the first time)
-                if hochregallager.grid_cell_timer_arr[row][
-                    column] == 0 and not hochregallager.grid_successfully_initialized:
-                    missing = "N/A"
-                else:
-                    missing = str(hochregallager.get_grid_cell_timer_value(row, column))
+                # REMOVE
+                # if hochregallager.grid_cell_timer_arr[row][
+                #     column] == 0 and not hochregallager.grid_successfully_initialized:
+                #     missing = "N/A"
+                # else:
+                #     missing = str(hochregallager.get_grid_cell_timer_value(row, column))
 
             else:
                 behaelter = hochregallager.behaelter_arr[row][column]
-                # param hochregallager.image here is for img width and height
                 ymin, xmin, _, _ = coordinates.get_box_coord_relative_to_grid_coord(
                     behaelter.bounding_box, hochregallager
                 )
@@ -86,7 +85,14 @@ def create_behaelter_dict():
                 else:
                     wkstk_score = "N/A"
                     color = "N/A"
+                # REMOVE
+                # missing = "N/A"
+
+            missing_record_list = hochregallager.missing_time_record_arr[row][column]
+            if not missing_record_list:
                 missing = "N/A"
+            else:
+                missing = missing_record_list
 
             behaelter_dict[dict_key_var] = {
                 # coords = ymin, xmin or "N/A"

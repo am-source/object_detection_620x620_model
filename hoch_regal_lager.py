@@ -11,6 +11,8 @@ class Hochregallager:
         self.coordinates = None
         self.behaelter_arr = [[None for x in range(3)] for y in range(3)]
         self.grid_cell_timer_arr = [[0 for x in range(3)] for y in range(3)]
+        # missing_time_arr keeps a list of missing times of Behaelter in every cell
+        self.missing_time_record_arr = [[[] for x in range(3)] for y in range(3)]
         self.grid_successfully_initialized = False
         self.image = None
 
@@ -22,22 +24,11 @@ class Hochregallager:
 
     def assign_grid_pos(self, behaelter, row, column):
         self.behaelter_arr[row][column] = behaelter
-        # if behaelter.empty:
-        #     print('POS:{}x{} is EMPTY')
-        # else:
-        #     print('POS:{}x{} is {}'.format(
-        #         row, column, behaelter.werk_stueck.color))
-
-    def check_for_missing_behaelter(self):
-        # check if a behaelter was removed, if so - call remove
-        pass
 
     def remove_behaelter(self, row, column):
         self.behaelter_arr[row][column] = None
-        # -> TIMER
 
     # call after a new frame is presented
-
     def clear_behaelter_list(self):
         self.behaelter_obj_list = []
 
@@ -52,13 +43,16 @@ class Hochregallager:
             self.height_in_px = coord.get_approx_hochregallager_grid_height(
                 self)
             if len(self.behaelter_obj_list) == 9:
+                print("FULLY INITIALIZED!")
                 self.grid_successfully_initialized = True
 
     def start_grid_cell_timer(self, row, column, current_time):
         self.grid_cell_timer_arr[row][column] = current_time
-        # print("TIMER WAS STARTED")
 
     def stop_grid_cell_timer(self, row, column):
+        missing_time = self.get_grid_cell_timer_value(row, column)
+        self.missing_time_record_arr[row][column].append(missing_time)
+        # print("TIME RECORD OF {}x{}: {}".format(row, column, self.missing_time_record_arr[row][column]))
         self.grid_cell_timer_arr[row][column] = 0
 
     def get_behaelter_pos_by_behaelter_obj(self, behaelter_obj):

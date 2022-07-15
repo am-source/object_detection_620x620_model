@@ -111,9 +111,15 @@ def detect_color_in_bounding_box(image_np, current_box, used_normalized_coordina
     ]
 
     # loop over masks and get corresponding color for bounding box
+    # object_color = "UNDECIDED"
+    # for mask in masks:
+    #     if np.count_nonzero(mask[0]) > (mask[0].size * 0.5):
+    #         object_color = mask[1]
     object_color = "UNDECIDED"
+    max_mask_area = 0
     for mask in masks:
-        if np.count_nonzero(mask[0]) > (mask[0].size * 0.5):
+        if np.count_nonzero(mask[0]) > max_mask_area:
+            max_mask_area = np.count_nonzero(mask[0])
             object_color = mask[1]
 
     return object_color
