@@ -64,13 +64,6 @@ def create_behaelter_dict():
                 filled = "N/A"
                 wkstk_score = "N/A"
                 color = "N/A"
-                # REMOVE
-                # if hochregallager.grid_cell_timer_arr[row][
-                #     column] == 0 and not hochregallager.grid_successfully_initialized:
-                #     missing = "N/A"
-                # else:
-                #     missing = str(hochregallager.get_grid_cell_timer_value(row, column))
-
             else:
                 behaelter = hochregallager.behaelter_arr[row][column]
                 ymin, xmin, _, _ = coordinates.get_box_coord_relative_to_grid_coord(
@@ -85,14 +78,20 @@ def create_behaelter_dict():
                 else:
                     wkstk_score = "N/A"
                     color = "N/A"
-                # REMOVE
-                # missing = "N/A"
+
+            if hochregallager.grid_cell_timer_arr[row][column] == 0:
+                missing = str(0)
+            else:
+                missing = str(hochregallager.get_grid_cell_timer_value(row, column))
 
             missing_record_list = hochregallager.missing_time_record_arr[row][column]
             if not missing_record_list:
-                missing = "N/A"
+                missing_record = "N/A"
             else:
-                missing = missing_record_list
+                missing_record = map(
+                    lambda x: "t{}: {}s".format(x, missing_record_list[x]), range(len(missing_record_list))
+                )
+                missing_record = ", ".join(list(missing_record))
 
             behaelter_dict[dict_key_var] = {
                 # coords = ymin, xmin or "N/A"
@@ -101,7 +100,8 @@ def create_behaelter_dict():
                 "filled": filled,
                 "wkstk_score": wkstk_score,
                 "color": color,
-                "missing": missing
+                "missing": missing,
+                "missing_record": missing_record
             }
 
             dict_key_var += 1
