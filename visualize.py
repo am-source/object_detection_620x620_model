@@ -119,7 +119,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                         else:
                             row, column = pos
                             display_str2 = "POS: {}x{}".format(row, column)
-                    if not skip_coord:
+                    if not skip_coord and hochregallager.grid_successfully_initialized:
                         ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
                             box, hochregallager)
                         display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
@@ -140,7 +140,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                         else:
                             row, column = pos
                             display_str2 = "POS: {}x{}".format(row, column)
-                    if not skip_coord:
+                    if not skip_coord and hochregallager.grid_successfully_initialized:
                         ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
                             box, hochregallager)
                         display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
