@@ -10,6 +10,53 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script>
 
+<!--            function simplifyCards() {-->
+<!--&lt;!&ndash;                cards currently display all details &ndash;&gt;-->
+<!--                if ($("#simplify_btn").text() == "Show less") {-->
+<!--&lt;!&ndash;                    hide (more complex) details&ndash;&gt;-->
+<!--                    for (let i = 1; i < 10; i++) {-->
+<!--                        $(`#b${i}_coords`).css("display", "none");-->
+<!--                        $(`#b${i}_score`).css("display", "none");-->
+<!--                        $(`#b${i}_wkstk_score`).css("display", "none");-->
+<!--                        $(`#b${i}_missing`).css("display", "none");-->
+<!--                    }-->
+<!--                    $("#simplify_btn").text("Show more")-->
+<!--                }-->
+<!--&lt;!&ndash;                cards currently display simplified details &ndash;&gt;-->
+<!--                else{-->
+<!--                    for (let i = 1; i < 10; i++) {-->
+<!--                        $(`#b${i}_coords`).css("display", "");-->
+<!--                        $(`#b${i}_score`).css("display", "");-->
+<!--                        $(`#b${i}_wkstk_score`).css("display", "");-->
+<!--                        $(`.missing.`).css("display", "");-->
+<!--                    }-->
+<!--                    $("#simplify_btn").text("Show less")-->
+<!--                }-->
+<!--            }-->
+
+            function simplifyCards() {
+<!--                cards currently display all details -->
+                if ($("#simplify_btn").text() == "Show less") {
+                    $(`.coords`).css("display", "none");
+                    $(`.score`).css("display", "none");
+                    $(`.missing > .card-left`).css("display", "none");
+                    $(`.missing > .card-right`).css("display", "none");
+
+                    $("#simplify_btn").text("Show more")
+                }
+<!--                cards currently display simplified details -->
+                else{
+                    $(`.coords`).css("display", "");
+                    $(`.score`).css("display", "");
+                    $(`.missing > .card-left`).css("display", "");
+                    $(`.missing > .card-right`).css("display", "");
+
+                    $("#simplify_btn").text("Show less")
+                }
+            }
+
+
+
             function handleMissingTimer(missing_timer, missing_record, i) {
 <!--            timer isn't active atm -->
                 if (missing_timer == "0") {
@@ -196,6 +243,33 @@
         float: left;
     }
 
+    .bn3 {
+      display: inline-block;
+      padding: 0.5em 1.7em;
+      margin: 1.5em 0.1em 0.1em 0;
+      border: 0.16em solid rgb(0, 0, 0);
+      border-radius: 2em;
+      box-sizing: border-box;
+      color: black;
+      text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.253);
+      text-align: center;
+      transition: all 0.2s;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 18px;
+    }
+
+    .bn3:hover {
+      color: black;
+      background-color: rgb(255, 255, 255);
+    }
+
+    .btn_container {
+        display: flex;
+        justify-content: center;
+    }
+
+
+
 
     </style>
 
@@ -261,7 +335,7 @@
                                 <div class="card-left">Filled:&nbsp;</div>
                                 <div class="card-right" id="b2_filled"></div>
                             </div>
-                            <div class="wkstk_score">
+                            <div class="wkstk score">
                                 <div class="card-left">WerkStueck score:&nbsp;</div>
                                 <div class="card-right" id="b2_wkstk_score"></div>
                             </div>
@@ -515,6 +589,10 @@
                         </div>
                     </div>
                 </div>
+
+               <div class="btn_container">
+                  <button onclick="simplifyCards()" class="bn3" id="simplify_btn">Show less</button>
+               </div>
 
                </div>
 
