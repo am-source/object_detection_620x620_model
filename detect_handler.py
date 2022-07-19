@@ -102,6 +102,7 @@ def handle_detection(camera, hochregallager):
         skip_boxes=False,
         skip_scores=True,
         skip_labels=False,
+        skip_grid_outline=True,
         text_font_size=16,
     )
 

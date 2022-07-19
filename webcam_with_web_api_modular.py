@@ -14,12 +14,12 @@ app = Flask(__name__)
 ########## FLASK ROUTES ############################################################################
 def generate_frames():
     cam = MyCamera()
-    print("ENTERED generate_frames!")
+    # print("ENTERED generate_frames!")
     while True:
-        print("IN while True BLOCK!")
+        # print("IN while True BLOCK!")
         if not cam.frame_available():
             continue
-        print("IN while True BLOCK! - IF ret WAS TRUE")
+        # print("IN while True BLOCK! - IF ret WAS TRUE")
 
         image_np_with_detections = detect.handle_detection(camera=cam, hochregallager=hochregallager)
         # resize to match original resolution

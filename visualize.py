@@ -80,7 +80,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
         np.copyto(image, np.array(image_pil))
 
     # put timer text for missing behaelter
-    if not skip_missing_timer:
+    if not skip_missing_timer and hochregallager.grid_successfully_initialized:
         image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         visualize_missing_behaelter_timer(image_pil, hochregallager, text_font_size)
         np.copyto(image, np.array(image_pil))

@@ -175,11 +175,8 @@ def get_tmp_grid_positions(hochregallager):
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
 
-    # create a numpy 2d arr for bounding boxes of hochregallager.behaelter_obj_list (needed for bounding_box_intersect)
-    tmp_list = []
-    for obj in hochregallager.behaelter_obj_list:
-        tmp_list.append(obj.bounding_box)
-    behaelter_np_arr = np.array(tmp_list)
+    # create copy of behaelter_obj_list, remove already assigned behaelter only from this copy
+    tmp_behaelter_obj_list = hochregallager.behaelter_obj_list.copy()
 
     # create 3x3 array to temporarily act as Hochregallager.behaelter_arr, if the grid doesnt fulfill set conditions
     # then no behaelter should actually be assigned to the real Hochregallager.behaelter_arr
@@ -201,10 +198,14 @@ def get_tmp_grid_positions(hochregallager):
             left = left + (grid_cell_width)
             right = right + (grid_cell_width)
 
+            # create a numpy 2d arr for bounding boxes of hochregallager.behaelter_obj_list (needed for bounding_box_intersect)
+            tmp_list = []
+            for obj in tmp_behaelter_obj_list:
+                tmp_list.append(obj.bounding_box)
+            behaelter_np_arr = np.array(tmp_list)
+
             grid_cell_bounding_box = (top, left, bottom, right)
-            intersect_elements = bounding_box_intersect(
-                grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True,
-                percent_threshold=0.5)
+            intersect_elements = bounding_box_intersect(grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True)
 
             if len(intersect_elements) >= 1:
                 # if more than one behaelter is (partially) in a grid cell, then get the behaelter with the highest overlap
@@ -217,12 +218,10 @@ def get_tmp_grid_positions(hochregallager):
                             highest_intersect_percent = elem[1]
                             actual_intersect_elem = elem
 
-                # remove elem from behaelter_np_arr to avoid multiple assignment and avoid unnecessary iterations
-                # multiple assignment is unlikely if there are is at least one element in grid row 0, row 2, column 0 , column 2
-                for tmp_bounding_box in behaelter_np_arr:
-                    if tmp_bounding_box == actual_intersect_elem[0]:
-                        tmp_np_arr = np.array([tmp_bounding_box])
-                        behaelter_np_arr = np.setdiff1d(behaelter_np_arr, tmp_np_arr)
+                # remove elem to avoid multiple assignment and avoid unnecessary iterations
+                for obj in tmp_behaelter_obj_list:
+                    if actual_intersect_elem[0] == obj.bounding_box:
+                        tmp_behaelter_obj_list.remove(obj)
 
                 # find corresponding behaelter object and assign to grid
                 for elem in hochregallager.behaelter_obj_list:
