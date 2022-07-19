@@ -34,8 +34,8 @@ def generate_frames():
         )
 
 
-@app.route('/_stuff', methods=['GET'])
-def stuff():
+@app.route('/card_update', methods=['GET'])
+def card_update():
     # dict keys: coords, score, filled, wkstk_score, color, missing
     behaelter_dict = create_behaelter_dict()
     return jsonify(pos_dict=behaelter_dict)
@@ -66,10 +66,14 @@ def create_behaelter_dict():
                 color = "N/A"
             else:
                 behaelter = hochregallager.behaelter_arr[row][column]
-                ymin, xmin, _, _ = coordinates.get_box_coord_relative_to_grid_coord(
-                    behaelter.bounding_box, hochregallager
-                )
-                coords = str((round(ymin, 2), round(xmin, 2)))
+                if hochregallager.grid_successfully_initialized:
+                    ymin, xmin, _, _ = coordinates.get_box_coord_relative_to_grid_coord(
+                        behaelter.bounding_box, hochregallager
+                    )
+                    coords = str((round(ymin, 2), round(xmin, 2)))
+                # grid isn't accessible
+                else:
+                    coords = "N/A"
                 score = str(behaelter.score)
                 filled = not behaelter.empty
                 if filled:

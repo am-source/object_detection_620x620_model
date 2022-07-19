@@ -32,19 +32,17 @@ class Hochregallager:
     def clear_behaelter_list(self):
         self.behaelter_obj_list = []
 
+    def handle_grid_coordinates_and_pos_assignment(self):
+        self.initialize_grid_coordinates()
+        coord.handle_grid_positions(self)
+
     def initialize_grid_coordinates(self):
-        # coordinates should only be None before the first frame, grid_successfully_initialized being false
-        # means (at least) one Behaelter was missing in the frame(s) before, thereby distorting the coordinates
-        if not self.grid_successfully_initialized:
-            self.coordinates = coord.get_approx_hochregallager_grid_coordinates(
-                self)
-            self.width_in_px = coord.get_approx_hochregallager_grid_width(
-                self)
-            self.height_in_px = coord.get_approx_hochregallager_grid_height(
-                self)
-            if len(self.behaelter_obj_list) == 9:
-                print("FULLY INITIALIZED!")
-                self.grid_successfully_initialized = True
+        self.coordinates = coord.get_approx_hochregallager_grid_coordinates(
+            self)
+        self.width_in_px = coord.get_approx_hochregallager_grid_width(
+            self)
+        self.height_in_px = coord.get_approx_hochregallager_grid_height(
+            self)
 
     def start_grid_cell_timer(self, row, column, current_time):
         self.grid_cell_timer_arr[row][column] = current_time

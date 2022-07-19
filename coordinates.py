@@ -127,7 +127,51 @@ def get_approx_hochregallager_grid_height(hochregallager):
     return ymax-ymin
 
 
-def assign_grid_positions(hochregallager):
+def handle_grid_positions(hochregallager):
+    tmp_behaelter_arr = get_tmp_grid_positions(hochregallager)
+    grid_init_successful = check_grid_init_successful(tmp_behaelter_arr)
+
+    if grid_init_successful:
+        hochregallager.grid_successfully_initialized = True
+
+        for i in range(3):
+            for j in range(3):
+                behaelter_obj = tmp_behaelter_arr[i][j]
+                if behaelter_obj is not None:
+                    # grid cell is filled and was empty
+                    if hochregallager.behaelter_arr[i][j] is None:
+                        hochregallager.assign_grid_pos(
+                            behaelter_obj, row=i, column=j)
+                        # covers the case where this is the first iteration after launching the program. Since no timer was
+                        # started beforehand, there is no running timer to stop
+                        if hochregallager.grid_cell_timer_arr[i][j] == 0:
+                            pass
+                        else:
+                            hochregallager.stop_grid_cell_timer(row=i, column=j)
+                    # grid cell is filled and was filled before
+                    else:
+                        # update behaelter obj, possibly changing wkstk color and/or scores
+                        hochregallager.assign_grid_pos(
+                            behaelter_obj, row=i, column=j)
+
+                # no behaelter found in grid cell
+                else:
+                    # grid cell is empty and was empty
+                    if hochregallager.behaelter_arr[i][j] is None:
+                        pass
+                    # grid cell is empty and was filled before
+                    else:
+                        hochregallager.remove_behaelter(row=i, column=j)
+                        current_time = time.time()
+                        hochregallager.start_grid_cell_timer(
+                            row=i, column=j, current_time=current_time)
+
+    # modify boolean to represent that currently the coordinates of the grid cannot/shouldn't be accessed
+    else:
+        hochregallager.grid_successfully_initialized = False
+
+
+def get_tmp_grid_positions(hochregallager):
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
 
@@ -137,15 +181,18 @@ def assign_grid_positions(hochregallager):
         tmp_list.append(obj.bounding_box)
     behaelter_np_arr = np.array(tmp_list)
 
-    percent = 1/3
-    grid_cell_width = grid_width_in_px*percent
-    grid_cell_height = grid_height_in_px*percent
+    # create 3x3 array to temporarily act as Hochregallager.behaelter_arr, if the grid doesnt fulfill set conditions
+    # then no behaelter should actually be assigned to the real Hochregallager.behaelter_arr
+    tmp_behaelter_arr = [[None for x in range(3)] for y in range(3)]
+
+    percent = 1 / 3
+    grid_cell_width = grid_width_in_px * percent
+    grid_cell_height = grid_height_in_px * percent
 
     top = ymin - grid_cell_height
     bottom = ymin
 
-    # 3x3 hochregallager array
-    # loop over all POSs in hochregallager.behaelter_arr and change status accordingly
+    # loop over all POSs intmp_behaelter_arr and change status accordingly
     for i in range(3):
         top = top + (grid_cell_height)
         bottom = bottom + (grid_cell_height)
@@ -154,10 +201,10 @@ def assign_grid_positions(hochregallager):
             left = left + (grid_cell_width)
             right = right + (grid_cell_width)
 
-
             grid_cell_bounding_box = (top, left, bottom, right)
             intersect_elements = bounding_box_intersect(
-                grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True)
+                grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True,
+                percent_threshold=0.5)
 
             if len(intersect_elements) >= 1:
                 # if more than one behaelter is (partially) in a grid cell, then get the behaelter with the highest overlap
@@ -169,39 +216,41 @@ def assign_grid_positions(hochregallager):
                         if elem[1] > highest_intersect_percent:
                             highest_intersect_percent = elem[1]
                             actual_intersect_elem = elem
+
+                # remove elem from behaelter_np_arr to avoid multiple assignment and avoid unnecessary iterations
+                # multiple assignment is unlikely if there are is at least one element in grid row 0, row 2, column 0 , column 2
+                for tmp_bounding_box in behaelter_np_arr:
+                    if tmp_bounding_box == actual_intersect_elem[0]:
+                        tmp_np_arr = np.array([tmp_bounding_box])
+                        behaelter_np_arr = np.setdiff1d(behaelter_np_arr, tmp_np_arr)
+
                 # find corresponding behaelter object and assign to grid
                 for elem in hochregallager.behaelter_obj_list:
                     if elem.bounding_box == actual_intersect_elem[0]:
                         behaelter_obj = elem
 
-                # grid cell is filled and was empty
-                if hochregallager.behaelter_arr[i][j] is None:
-                    hochregallager.assign_grid_pos(
-                        behaelter_obj, row=i, column=j)
-                    # covers the case where this is the first iteration after launching the program. Since no timer was
-                    # started beforehand, there is no running timer to stop
-                    if hochregallager.grid_cell_timer_arr[i][j] == 0:
-                        pass
-                    else:
-                        hochregallager.stop_grid_cell_timer(row=i, column=j)
-                # grid cell is filled and was filled before
-                else:
-                    # update behaelter obj, possibly changing wkstk color and/or scores
-                    hochregallager.assign_grid_pos(
-                        behaelter_obj, row=i, column=j)
+                # save Behaelter obj in temporary behaelter_arr
+                tmp_behaelter_arr[i][j] = behaelter_obj
+    return tmp_behaelter_arr
 
-            # no behaelter found in grid cell (len(intersect_elements) == 0)
-            else:
-                # print('No behaelter found, POS:{}x{}'.format(i, j))
-                # grid cell is empty and was empty
-                if hochregallager.behaelter_arr[i][j] is None:
-                    pass
-                # grid cell is empty and was filled before
-                else:
-                    hochregallager.remove_behaelter(row=i, column=j)
-                    current_time = time.time()
-                    hochregallager.start_grid_cell_timer(
-                        row=i, column=j, current_time=current_time)
+
+def check_grid_init_successful(tmp_behaelter_arr):
+    # row 0, row 2, column 0, column 2 each need at least one Behaelter to be able to pinpoint the outline of the grid
+    # row 0 is responsible for ymin value , column 0 is responsible for xmin value
+    # row 2 is responsible for ymax value , column 2 is responsible for xmax value
+    row_0 = row_2 = column_0 = column_2 = False
+    for i in range(3):
+        if tmp_behaelter_arr[0][i] is not None:
+            row_0 = True
+        if tmp_behaelter_arr[2][i] is not None:
+            row_2 = True
+        if tmp_behaelter_arr[i][0] is not None:
+            column_0 = True
+        if tmp_behaelter_arr[i][2] is not None:
+            column_2 = True
+
+    result = row_0 and row_2 and column_0 and column_2
+    return result
 
 
 def get_box_coord_relative_to_grid_coord(box, hochregallager):
