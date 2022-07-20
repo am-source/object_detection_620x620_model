@@ -1,3 +1,5 @@
 .idea
-Tensorflow
+Tensorflow/models
+Tensorflow/scripts
+Tensorflow/workspace/annotations/train.record
 __pycache__

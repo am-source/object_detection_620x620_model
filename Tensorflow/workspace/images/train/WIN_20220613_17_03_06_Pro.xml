@@ -1,0 +1,14 @@
+<annotation>
+	<folder>all_images</folder>
+	<filename>WIN_20220613_17_03_06_Pro.jpg</filename>
+	<path>D:\BA_project\RealTimeObjectDetection\Tensorflow\workspace\images\all_images\WIN_20220613_17_03_06_Pro.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+</annotation>

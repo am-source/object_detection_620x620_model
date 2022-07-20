@@ -2,8 +2,8 @@ import cv2
 
 
 class MyCamera:
-    def __init__(self):
-        self.camera = cv2.VideoCapture(0)
+    def __init__(self, cam_source=0):
+        self.camera = cv2.VideoCapture(cam_source)
         self.frame = None
 
     def frame_available(self):
@@ -11,3 +11,6 @@ class MyCamera:
         if ret:
             self.frame = frame
         return ret
+
+    def release(self):
+        self.camera.release()

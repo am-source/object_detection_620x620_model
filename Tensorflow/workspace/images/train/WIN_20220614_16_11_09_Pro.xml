@@ -1,0 +1,26 @@
+<annotation>
+	<folder>all_images</folder>
+	<filename>WIN_20220614_16_11_09_Pro.jpg</filename>
+	<path>D:\BA_project\RealTimeObjectDetection\Tensorflow\workspace\images\all_images\WIN_20220614_16_11_09_Pro.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Behaelter</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>471</xmin>
+			<ymin>154</ymin>
+			<xmax>784</xmax>
+			<ymax>459</ymax>
+		</bndbox>
+	</object>
+</annotation>

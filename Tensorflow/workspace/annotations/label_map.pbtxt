@@ -1,0 +1,8 @@
+item { 
+	name:'WerkStueck'
+	id:1
+}
+item { 
+	name:'Behaelter'
+	id:2
+}

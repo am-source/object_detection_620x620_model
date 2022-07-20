@@ -1,0 +1,38 @@
+<annotation>
+	<folder>images_new_2</folder>
+	<filename>IMG_20220617_095111.jpg</filename>
+	<path>C:\Users\Adnan\Desktop\BA - mat\images_new_2\IMG_20220617_095111.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>3968</width>
+		<height>2976</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Behaelter</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1069</xmin>
+			<ymin>1458</ymin>
+			<xmax>1559</xmax>
+			<ymax>2003</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>WerkStueck</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1527</xmin>
+			<ymin>845</ymin>
+			<xmax>1930</xmax>
+			<ymax>1261</ymax>
+		</bndbox>
+	</object>
+</annotation>
