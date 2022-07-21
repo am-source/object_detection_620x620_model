@@ -36,8 +36,7 @@ def handle_detection(camera, hochregallager):
     # needed for while loop
     # reset behaelter_obj_list (avoid appending to list of previous frame)
     hochregallager.clear_behaelter_list()
-    if hochregallager.image is None:
-        hochregallager.set_image(image_np)
+    hochregallager.set_image(image_np)
 
     ####################  get detections  ##############################################################
     category_index = get_category_index()
@@ -143,11 +142,5 @@ def initialize_and_handle_objects(image_np_with_detections, hochregallager, filt
         hochregallager.add_behaelter(behaelter)
 
     # handle grid initialize & assign
-    # at least 2 objects need to be present to process
-    if len(hochregallager.behaelter_obj_list) >= 2:
-        # try to set grid coordinates and assign grid positions to behaelter objs
-        hochregallager.handle_grid_coordinates_and_pos_assignment()
-
-    # less than 2 behaelter were detected, no grid can be initialized, set boolean to avoid error in visualize and
-    else:
-        hochregallager.grid_successfully_initialized = False
+    # try to set grid coordinates and assign grid positions to behaelter objs
+    hochregallager.handle_grid_coordinates_and_pos_assignment()

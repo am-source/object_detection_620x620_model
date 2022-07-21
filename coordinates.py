@@ -2,7 +2,6 @@ import time
 import cv2
 import numpy as np
 
-
 def one_dim_intersect(a0, a1, b0, b1):
     # a contains b
     if a0 < b0 and a1 > b1:
@@ -26,7 +25,7 @@ def bounding_box_intersect(
     primary_box, secondary_boxes, secondary_boxes_scores=None, im_height=None, im_width=None, needs_normalization=True, return_percent=False, percent_threshold=0.2
 ):
     p_ymin, p_xmin, p_ymax, p_xmax = primary_box
-    primary_box_area = float((p_xmax - p_xmin) * (p_ymax - p_ymin))
+    #primary_box_area = float((p_xmax - p_xmin) * (p_ymax - p_ymin))
     # using list to check for errors, only one elem should be appended
     intersect_elements = []
 
@@ -52,7 +51,10 @@ def bounding_box_intersect(
         intersect_width = one_dim_intersect(p_xmin, p_xmax, s_xmin, s_xmax)
         intersect_height = one_dim_intersect(p_ymin, p_ymax, s_ymin, s_ymax)
         intersect_area = intersect_width * intersect_height
-        intersect_percent = intersect_area / primary_box_area
+
+        secondary_box_area = float((s_xmax - s_xmin) * (s_ymax - s_ymin))
+        intersect_percent = intersect_area / secondary_box_area
+        # REMOVE
         # print(intersect_percent)
         if intersect_percent >= percent_threshold:
             if secondary_boxes_scores is None:
@@ -97,24 +99,83 @@ def get_box_coordinates_from_normalized_coordinates(
 
 
 # get coordinates for lowest ymin xmin, highest ymax xmax to find the 4 corners
-# should only be called when hochregallager.behaelter_obj_list has AT LEAST one behaelter
 def get_approx_hochregallager_grid_coordinates(hochregallager):
-    behaelter_list = hochregallager.behaelter_obj_list
+    aruco_bboxes, aruco_ids = get_aruco_markers(hochregallager)
 
-    ymin_test, xmin_test, ymax_test, xmax_test = behaelter_list[0].bounding_box[0], behaelter_list[
-        0].bounding_box[1], behaelter_list[0].bounding_box[2], behaelter_list[0].bounding_box[3]
+    # only possible if both markers are detected
+    if len(aruco_bboxes) == 2:
+        # since the outline of the Hochregallager is visible, we can assume that Behaelter can be assigned to grid cells
+        hochregallager.grid_successfully_initialized = True
 
-    for behaelter in behaelter_list:
-        new_ymin, new_xmin, new_ymax, new_xmax = behaelter.bounding_box
-        if ymin_test > new_ymin:
-            ymin_test = new_ymin
-        if xmin_test > new_xmin:
-            xmin_test = new_xmin
-        if ymax_test < new_ymax:
-            ymax_test = new_ymax
-        if xmax_test < new_xmax:
-            xmax_test = new_xmax
-    return (ymin_test, xmin_test, ymax_test, xmax_test)
+        # aruco_bboxes consists of a list length 2 (for every marker), the list for a marker consists of a list with
+        # only 1 element, this element is a list of 4 points, each in form of (x_val,y_val)
+        # get ymin, xmin, ymax, xmax for every marker
+        b1_ymin, b1_xmin, b1_ymax, b1_xmax = handle_aruco_corner(aruco_bboxes[0][0])
+        b2_ymin, b2_xmin, b2_ymax, b2_xmax = handle_aruco_corner(aruco_bboxes[1][0])
+
+        # if b1 is the left marker, then take it's right(xmax) as xmin (since its left side would unnecessarily distort
+        # the grid, take b1's ymin and the max values from the right marker
+        if b1_xmin < b2_xmin:
+            grid_xmin = b1_xmax
+            grid_xmax = b2_xmin
+            grid_ymin = b1_ymin
+            grid_ymax = b2_ymin
+        # b1 is the right marker
+        else:
+            grid_xmin = b2_xmax
+            grid_xmax = b1_xmin
+            grid_ymin = b2_ymin
+            grid_ymax = b1_ymin
+        return (grid_ymin, grid_xmin, grid_ymax, grid_xmax)
+    else:
+        return None
+    # behaelter_list = hochregallager.behaelter_obj_list
+    #
+    # ymin_test, xmin_test, ymax_test, xmax_test = behaelter_list[0].bounding_box[0], behaelter_list[
+    #     0].bounding_box[1], behaelter_list[0].bounding_box[2], behaelter_list[0].bounding_box[3]
+    #
+    # for behaelter in behaelter_list:
+    #     new_ymin, new_xmin, new_ymax, new_xmax = behaelter.bounding_box
+    #     if ymin_test > new_ymin:
+    #         ymin_test = new_ymin
+    #     if xmin_test > new_xmin:
+    #         xmin_test = new_xmin
+    #     if ymax_test < new_ymax:
+    #         ymax_test = new_ymax
+    #     if xmax_test < new_xmax:
+    #         xmax_test = new_xmax
+    # return (ymin_test, xmin_test, ymax_test, xmax_test)
+
+
+def handle_aruco_corner(corners):
+    # corners is a least of points, each point has the form (x_val,y_val)
+    ymin, xmin, ymax, xmax = corners[0][1], corners[0][0], corners[0][1], corners[0][0]
+
+    for point in corners:
+        if point[0] < xmin:
+            xmin = point[0]
+        if point[0] > xmax:
+            xmax = point[0]
+        if point[1] < ymin:
+            ymin = point[1]
+        if point[1] > ymax:
+            ymax = point[1]
+
+    return ymin, xmin, ymax, xmax
+
+
+def get_aruco_markers(hochregallager):
+    # setup for marker detection
+    aruco_params = cv2.aruco.DetectorParameters_create()
+    # smallest dictionary, since only 2 markers are needed and it's easier to detect simpler patterns
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+    current_frame = hochregallager.image.copy()
+    # gray scale should help improve the marker detection
+    gray_img = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+
+    # detectMarkers returns multiple(!) objects for each return val
+    aruco_bboxes, aruco_ids, _ = cv2.aruco.detectMarkers(gray_img, aruco_dict, parameters=aruco_params)
+    return aruco_bboxes, aruco_ids
 
 
 def get_approx_hochregallager_grid_width(hochregallager):
@@ -128,12 +189,13 @@ def get_approx_hochregallager_grid_height(hochregallager):
 
 
 def handle_grid_positions(hochregallager):
-    tmp_behaelter_arr = get_tmp_grid_positions(hochregallager)
-    grid_init_successful = check_grid_init_successful(tmp_behaelter_arr)
+    # tmp_behaelter_arr = get_tmp_grid_positions(hochregallager)
+    # grid_init_successful = check_grid_init_successful(tmp_behaelter_arr)
 
-    if grid_init_successful:
-        hochregallager.grid_successfully_initialized = True
-
+    # if grid_init_successful:
+    #     hochregallager.grid_successfully_initialized = True
+    if hochregallager.grid_successfully_initialized:
+        tmp_behaelter_arr = get_tmp_grid_positions(hochregallager)
         for i in range(3):
             for j in range(3):
                 behaelter_obj = tmp_behaelter_arr[i][j]
@@ -167,8 +229,8 @@ def handle_grid_positions(hochregallager):
                             row=i, column=j, current_time=current_time)
 
     # modify boolean to represent that currently the coordinates of the grid cannot/shouldn't be accessed
-    else:
-        hochregallager.grid_successfully_initialized = False
+    # else:
+    #     hochregallager.grid_successfully_initialized = False
 
 
 def get_tmp_grid_positions(hochregallager):
@@ -233,23 +295,23 @@ def get_tmp_grid_positions(hochregallager):
     return tmp_behaelter_arr
 
 
-def check_grid_init_successful(tmp_behaelter_arr):
-    # row 0, row 2, column 0, column 2 each need at least one Behaelter to be able to pinpoint the outline of the grid
-    # row 0 is responsible for ymin value , column 0 is responsible for xmin value
-    # row 2 is responsible for ymax value , column 2 is responsible for xmax value
-    row_0 = row_2 = column_0 = column_2 = False
-    for i in range(3):
-        if tmp_behaelter_arr[0][i] is not None:
-            row_0 = True
-        if tmp_behaelter_arr[2][i] is not None:
-            row_2 = True
-        if tmp_behaelter_arr[i][0] is not None:
-            column_0 = True
-        if tmp_behaelter_arr[i][2] is not None:
-            column_2 = True
-
-    result = row_0 and row_2 and column_0 and column_2
-    return result
+# def check_grid_init_successful(tmp_behaelter_arr):
+#     # row 0, row 2, column 0, column 2 each need at least one Behaelter to be able to pinpoint the outline of the grid
+#     # row 0 is responsible for ymin value , column 0 is responsible for xmin value
+#     # row 2 is responsible for ymax value , column 2 is responsible for xmax value
+#     row_0 = row_2 = column_0 = column_2 = False
+#     for i in range(3):
+#         if tmp_behaelter_arr[0][i] is not None:
+#             row_0 = True
+#         if tmp_behaelter_arr[2][i] is not None:
+#             row_2 = True
+#         if tmp_behaelter_arr[i][0] is not None:
+#             column_0 = True
+#         if tmp_behaelter_arr[i][2] is not None:
+#             column_2 = True
+#
+#     result = row_0 and row_2 and column_0 and column_2
+#     return result
 
 
 def get_box_coord_relative_to_grid_coord(box, hochregallager):
