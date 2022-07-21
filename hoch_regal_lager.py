@@ -33,6 +33,15 @@ class Hochregallager:
         self.behaelter_obj_list = []
 
     def handle_grid_coordinates_and_pos_assignment(self):
+
+        # ARUCO
+        # aruco_params = cv2.aruco.DetectorParameters_create()
+        # aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+        #####
+        # aruco_coord, _, _ = cv2.aruco.detectMarkers(image_np_with_detections, aruco_dict, parameters=aruco_params)
+        # cv2.polylines(image_np_with_detections, np.int64(aruco_coord), True, (0, 255, 100), 4)
+        #####
+
         self.initialize_grid_coordinates()
         coord.handle_grid_positions(self)
 
