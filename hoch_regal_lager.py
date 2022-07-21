@@ -37,9 +37,10 @@ class Hochregallager:
         coord.handle_grid_positions(self)
 
     def initialize_grid_coordinates(self):
-        self.coordinates = coord.get_approx_hochregallager_grid_coordinates(
+        approx_coord = coord.get_approx_hochregallager_grid_coordinates(
             self)
-        if self.coordinates is not None:
+        if approx_coord is not None:
+            self.coordinates = approx_coord
             self.width_in_px = coord.get_approx_hochregallager_grid_width(
                 self)
             self.height_in_px = coord.get_approx_hochregallager_grid_height(

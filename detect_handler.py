@@ -143,4 +143,7 @@ def initialize_and_handle_objects(image_np_with_detections, hochregallager, filt
 
     # handle grid initialize & assign
     # try to set grid coordinates and assign grid positions to behaelter objs
-    hochregallager.handle_grid_coordinates_and_pos_assignment()
+    if len(hochregallager.behaelter_obj_list) >= 1:
+        hochregallager.handle_grid_coordinates_and_pos_assignment()
+    else:
+        hochregallager.grid_successfully_initialized = False

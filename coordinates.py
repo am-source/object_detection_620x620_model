@@ -128,6 +128,7 @@ def get_approx_hochregallager_grid_coordinates(hochregallager):
             grid_ymax = b1_ymin
         return (grid_ymin, grid_xmin, grid_ymax, grid_xmax)
     else:
+        hochregallager.grid_successfully_initialized = False
         return None
     # behaelter_list = hochregallager.behaelter_obj_list
     #
