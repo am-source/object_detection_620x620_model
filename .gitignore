@@ -2,4 +2,5 @@
 Tensorflow/models
 Tensorflow/scripts
 Tensorflow/workspace/annotations/train.record
+Tensorflow/workspace/images
 __pycache__
