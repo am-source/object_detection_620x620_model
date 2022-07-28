@@ -2,7 +2,7 @@
 # coding: utf-8
 import cv2
 import detect_handler as detect
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, jsonify, request
 from hoch_regal_lager import Hochregallager
 from camera import MyCamera
 import coordinates
@@ -12,6 +12,16 @@ app = Flask(__name__)
 
 
 ########## FLASK ROUTES ############################################################################
+@app.route('/handle_data', methods=['GET'])
+def handle_data():
+    fst_res = int(request.args['fst_res'])
+    snd_res = int(request.args['snd_res'])
+    if fst_res > 0 and snd_res > 0:
+        global cam_resolution
+        cam_resolution = (fst_res, snd_res)
+    # need to send some response -> just reload
+    return render_template('index.html')
+
 def generate_frames():
     cam = MyCamera()
     # print("ENTERED generate_frames!")

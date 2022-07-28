@@ -247,15 +247,16 @@
       display: inline-block;
       padding: 0.5em 1.7em;
       margin: 1.5em 0.1em 0.1em 0;
-      border: 0.16em solid rgb(0, 0, 0);
+      border: 0.16em solid #979797;
       border-radius: 2em;
       box-sizing: border-box;
-      color: black;
+      color: #979797;
       text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.253);
       text-align: center;
       transition: all 0.2s;
       font-family: 'Open Sans', sans-serif;
       font-size: 18px;
+      background: #eeeeee;
     }
 
     .bn3:hover {
@@ -269,7 +270,46 @@
     }
 
 
+    .resolution {
+        margin: 0em 1.1em 0.1em 1em;
+        min-height: 20px;
+        max-width: 80px;
+    }
 
+    .resolution_container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-family: 'Open Sans', sans-serif;
+        color: #eeeeee;
+    }
+
+    img {
+        max-width:100%;
+        max-height:75%;
+        margin: 2em 0em 0em 0em;
+    }
+
+    .bn4 {
+      display: inline-block;
+      padding: 0.1em 0.5em;
+      border: 0.16em solid #eeeeee;
+      border-radius: 2em;
+      box-sizing: border-box;
+      color: #eeeeee;
+      text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.253);
+      text-align: center;
+      transition: all 0.2s;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 18px;
+      background: #979797
+    }
+
+    .bn4:hover {
+      color: black;
+      background-color: rgb(255, 255, 255);
+    }
 
     </style>
 
@@ -598,8 +638,16 @@
 
                <div class="column right">
                    <h1 class="h1-right">Live streaming webcam</h1>
+                   <form class="resolution_container" action="{{ url_for('handle_data') }}" method="get">
+                       <div>Webcam resolution: </div>
+                       <input class="resolution" type="text" name="fst_res">
+                       <div>x</div>
+                       <input class="resolution" type="text" name="snd_res">
+                       <input class="bn4" type="submit" value="Change">
+                   </form>
+                   <div class="resolution_container">
                    <img src="{{ url_for('video') }}" class="webcam"/>
-
+                   </div>
                </div>
 
            </div>
