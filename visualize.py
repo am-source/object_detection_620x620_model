@@ -178,6 +178,18 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     for box, color in box_to_color_map.items():
         ymin, xmin, ymax, xmax = box
 
+        # safe switch: don't visualize detections outside of the grid (in case something was mistakenly detected)
+        if hochregallager.coordinates is not None and hochregallager.grid_successfully_initialized:
+            simple_list = [box]
+            # np arr needed for intersect
+            behaelter_np_arr = np.array(simple_list)
+            im_height = image.shape[0]
+            im_width = image.shape[1]
+            box_grid_intersect = coord.bounding_box_intersect(hochregallager.coordinates, behaelter_np_arr, im_height=im_height, im_width=im_width)
+            # no intersect between grid and box -> should be a mistake
+            if len(box_grid_intersect) == 0:
+                continue
+
         image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         draw_bounding_box_on_image_tmp(
             image_pil,
