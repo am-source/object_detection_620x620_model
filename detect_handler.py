@@ -14,8 +14,9 @@ import coordinates as coord
 WORKSPACE_PATH = "Tensorflow/workspace"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
-CHECKPOINT_PATH = MODEL_PATH + "/my_ssd_mobnet/"
-CUSTOM_MODEL_NAME = "my_ssd_mobnet"
+# CUSTOM_MODEL_NAME = "my_ssd_mobnet"
+CUSTOM_MODEL_NAME = "my_ssd_mobnet_back_view"
+CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
 
 
