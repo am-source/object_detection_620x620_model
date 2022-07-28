@@ -92,9 +92,14 @@ def create_behaelter_dict():
             if not missing_record_list:
                 missing_record = "N/A"
             else:
+                # map timer record (float) into string, form: t0: 1.5s, t1: 2.3s...
+                # only map most recent 4 times to avoid overcrowding div cards
+                record_len = len(missing_record_list)
+                start = 0 if record_len < 4 else (record_len-4)
                 missing_record = map(
-                    lambda x: "t{}: {}s".format(x, missing_record_list[x]), range(len(missing_record_list))
+                    lambda x: "t{}: {}s".format(x, missing_record_list[x]), range(start, record_len)
                 )
+                # list of strings to single string ( joined by ", ")
                 missing_record = ", ".join(list(missing_record))
 
             behaelter_dict[dict_key_var] = {
