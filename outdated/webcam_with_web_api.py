@@ -463,9 +463,9 @@ def get_grid_cell_timer_value(row, column):
 
 # # Setup
 
-WORKSPACE_PATH = "Tensorflow/workspace"
-SCRIPTS_PATH = "Tensorflow/scripts"
-APIMODEL_PATH = "Tensorflow/models"
+WORKSPACE_PATH = "../Tensorflow/workspace"
+SCRIPTS_PATH = "../Tensorflow/scripts"
+APIMODEL_PATH = "../Tensorflow/models"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 IMAGE_PATH = WORKSPACE_PATH + "/images"
 MODEL_PATH = WORKSPACE_PATH + "/models"
