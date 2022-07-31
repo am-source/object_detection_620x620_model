@@ -2,6 +2,7 @@ import time
 import cv2
 import numpy as np
 
+
 def one_dim_intersect(a0, a1, b0, b1):
     # a contains b
     if a0 < b0 and a1 > b1:
@@ -234,45 +235,6 @@ def handle_grid_positions(hochregallager):
     #     hochregallager.grid_successfully_initialized = False
 
 
-# def get_tmp_grid_positions(hochregallager):
-#     # arr form of [row][column]
-#     tmp_behaelter_arr = [[None for x in range(3)] for y in range(3)]
-#
-#     # remove - out of grid - elements
-#     for obj in hochregallager.behaelter_obj_list:
-#
-#         simple_list = [obj.bounding_box]
-#         # np arr needed for intersect
-#         behaelter_np_arr = np.array(simple_list)
-#         im_height = hochregallager.image.shape[0]
-#         im_width = hochregallager.image.shape[1]
-#         box_grid_intersect = bounding_box_intersect(hochregallager.coordinates, behaelter_np_arr,
-#                                                           im_height=im_height, im_width=im_width)
-#         # no intersect between grid and box -> should be a mistake
-#         if len(box_grid_intersect) == 0:
-#             tmp_behaelter_arr.remove(obj)
-#
-#     # bounding_box has form: (ymin, xmin, ymax, xmax)
-#     # sort by xmin value (left)
-#     # left/columns was chosen as the main criteria because height/ymin is more likely to cause problems from the angle
-#     # the webcam faces, e.g. 2x0 might have the same height/ymin val as 1x2
-#     hochregallager.behaelter_obj_list.sort(key=lambda x: x.bounding_box[1])
-#
-#     # list is sorted by xmin value (x-axis), the 3 "most" left items are in the first column, the next 3 in the 2nd, ...
-#     # now sort the columns by ymin (y-axis), to find their actual positions
-#     fst_column = sorted(hochregallager.behaelter_obj_list[0:3], key=lambda x: x.bounding_box[0])
-#     snd_column = sorted(hochregallager.behaelter_obj_list[3:6], key=lambda x: x.bounding_box[1])
-#     trd_column = sorted(hochregallager.behaelter_obj_list[6:9], key=lambda x: x.bounding_box[1])
-#
-#     # assign objs
-#     column_list = [fst_column, snd_column, trd_column]
-#     for row in range(3):
-#         for column in range(3):
-#             tmp_behaelter_arr[row][column] = column_list[column][row]
-#
-#     return tmp_behaelter_arr
-
-
 def get_tmp_grid_positions(hochregallager):
     ymin, xmin, _, _ = hochregallager.coordinates
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
@@ -284,19 +246,17 @@ def get_tmp_grid_positions(hochregallager):
     # then no behaelter should actually be assigned to the real Hochregallager.behaelter_arr
     tmp_behaelter_arr = [[None for x in range(3)] for y in range(3)]
 
+    # this percent is only used for cell width, since the webcam angle only slightly distorts the cell width
+    # adjustments are not needed (unlike cell heights)
     percent = 1 / 3
     grid_cell_width = grid_width_in_px * percent
-    grid_cell_height = grid_height_in_px * percent
-
-    top = ymin - grid_cell_height
-    bottom = ymin
 
     # loop over all POSs intmp_behaelter_arr and change status accordingly
     for i in range(3):
-        top = top + (grid_cell_height)
-        bottom = bottom + (grid_cell_height)
         left, right = (xmin - grid_cell_width), xmin
         for j in range(3):
+            # top and bottom of cells are not all equal in height, need to be adjusted to account for webcam angle
+            top, bottom = get_grid_cell_top_and_bottom(hochregallager, row=i, column=j)
             left = left + (grid_cell_width)
             right = right + (grid_cell_width)
 
@@ -333,6 +293,61 @@ def get_tmp_grid_positions(hochregallager):
                 # save Behaelter obj in temporary behaelter_arr
                 tmp_behaelter_arr[i][j] = behaelter_obj
     return tmp_behaelter_arr
+
+
+def get_grid_cell_top_and_bottom(hochregallager, row, column):
+    """
+    percent value shows the y axis distribution of the grid cell height
+                        _____________________
+                        || 18% | 30% | 50% ||
+                        ---------------------
+                        || 32% | 30% | 32% ||
+                        ---------------------
+                        || 50% | 40% | 18% ||
+                        ---------------------
+                        ||                 ||
+                        ||                 ||
+
+    """
+    if column == 0:
+        if row == 0:
+            percent_top = 0
+            percent_bottom = 0.18
+        elif row == 1:
+            percent_top = 0.18
+            percent_bottom = 0.5
+        else:
+            percent_top = 0.5
+            percent_bottom = 1
+
+    elif column == 1:
+        if row == 0:
+            percent_top = 0
+            percent_bottom = 0.3
+        elif row == 1:
+            percent_top = 0.3
+            percent_bottom = 0.6
+        else:
+            percent_top = 0.6
+            percent_bottom = 1
+
+    else:
+        if row == 0:
+            percent_top = 0
+            percent_bottom = 0.5
+        elif row == 1:
+            percent_top = 0.5
+            percent_bottom = 0.82
+        else:
+            percent_top = 0.82
+            percent_bottom = 1
+
+    grid_height = hochregallager.height_in_px
+    grid_top = hochregallager.coordinates[0]
+
+    cell_top = grid_top + grid_height * percent_top
+    cell_bottom = grid_top + grid_height * percent_bottom
+    return cell_top, cell_bottom
 
 
 # def check_grid_init_successful(tmp_behaelter_arr):
