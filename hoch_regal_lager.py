@@ -51,7 +51,10 @@ class Hochregallager:
 
     def stop_grid_cell_timer(self, row, column):
         missing_time = self.get_grid_cell_timer_value(row, column)
-        self.missing_time_record_arr[row][column].append(missing_time)
+        # at least 5s to be counted as missing, since missing times of around 0-3 are usually mistakes resulting
+        # from detection and processing
+        if missing_time >= 5:
+            self.missing_time_record_arr[row][column].append(missing_time)
         # print("TIME RECORD OF {}x{}: {}".format(row, column, self.missing_time_record_arr[row][column]))
         self.grid_cell_timer_arr[row][column] = 0
 

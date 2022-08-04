@@ -109,8 +109,12 @@ def create_behaelter_dict():
                 missing_record = map(
                     lambda x: "t{}: {}s".format(x, missing_record_list[x]), range(start, record_len)
                 )
+                # turn map obj into list
+                missing_record = list(missing_record)
+                # show the latest missing time first
+                missing_record.reverse()
                 # list of strings to single string ( joined by ", ")
-                missing_record = ", ".join(list(missing_record))
+                missing_record = ", ".join(missing_record)
 
             behaelter_dict[dict_key_var] = {
                 # coords = ymin, xmin or "N/A"
