@@ -18,6 +18,8 @@ MODEL_PATH = WORKSPACE_PATH + "/models"
 # CUSTOM_MODEL_NAME = "my_ssd_mobnet_back_view"
 CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view"
 # CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view_8batch"
+# CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view_8batch_401img"
+# CUSTOM_MODEL_NAME = "my_ssd_resnet"
 CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
 

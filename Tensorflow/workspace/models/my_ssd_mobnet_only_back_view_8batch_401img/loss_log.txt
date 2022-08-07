@@ -1,0 +1,12 @@
+5.000: 0,174  
+(class 1 average_precision: 0.984203, class 2 average_precision: 0.999914)
+8.000: 0,15
+10.000: 0,143
+(class 1 average_precision: 0.983448, class 2 average_precision: 0.999992)
+15.000: 0,113
+(class 1 average_precision: 0.988320, class 2 average_precision: 0.999968)
+18.000: 0,119 (0,10 b4)
+20.000: 0,104 (0,93 b4)
+(class 1 average_precision: 0.984858, class 2 average_precision: 0.999968)
+(coco: mAP@.50IOU: 0.989964)
+
