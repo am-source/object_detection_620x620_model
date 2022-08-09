@@ -14,11 +14,8 @@ import coordinates as coord
 WORKSPACE_PATH = "Tensorflow/workspace"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
-# CUSTOM_MODEL_NAME = "my_ssd_mobnet"
-# CUSTOM_MODEL_NAME = "my_ssd_mobnet_back_view"
 CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view"
-# CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view_8batch"
-# CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view_8batch_401img"
+# CUSTOM_MODEL_NAME = "my_ssd_mobnet_4batch_401img"
 # CUSTOM_MODEL_NAME = "my_ssd_resnet"
 CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
@@ -72,7 +69,8 @@ def handle_detection(camera, hochregallager):
         detections["detection_boxes"],
         detections["detection_classes"] + label_id_offset,
         detections["detection_scores"],
-        min_score_threshold
+        min_score_threshold,
+        category_index
     )
     (
         filtered_WerkStueck_detections,

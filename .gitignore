@@ -4,3 +4,4 @@ Tensorflow/scripts
 Tensorflow/workspace/annotations/train.record
 Tensorflow/workspace/images
 __pycache__
+Tensorflow/workspace/models/my_ssd_resnet/*.data-00000-of-00001

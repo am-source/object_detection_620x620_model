@@ -4,27 +4,7 @@ used following pre-trained model from [tensorflow model zoo](https://github.com/
 
 ###Custom trained models:
 
-**my_ssd_mobnet**\
-image data distribution:\
-181 imgs in total\
-86 imgs with WerkStueck class and/or Behaelter class visible,\
-79 imgs with Hochregallager and WerkStueck class + Behaelter class visible\
-16 background imgs of Hochregallager, no labels included
-
-test/train ratio: 23.2%, 76.8%
-
-
-**my_ssd_mobnet_back_view**\
-image data distribution:\
-248 imgs in total\
-86 imgs with WerkStueck class and/or Behaelter class visible,\
-130 imgs with Hochregallager and WerkStueck class + Behaelter class visible\
-32 background imgs of Hochregallager, no labels included
-
-test/train ratio: 20.6%, 79.4%
-
-
-**my_ssd_mobnet_back_view**\
+**my_ssd_mobnet_only_back_view**\
 image data distribution:\
 271 imgs in total\
 86 imgs with WerkStueck class and/or Behaelter class visible,\
@@ -38,7 +18,7 @@ total - WerkStueck class 918, Behaelter 1044
 test/train ratio: 20%, 80%
 
 
-**my_ssd_mobnet_back_view_8btach_401img,**\
+**my_ssd_mobnet_4batch_401img,**\
 **my_ssd_resnet**\
 image data distribution:\
 401 imgs in total\

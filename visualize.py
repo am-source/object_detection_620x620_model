@@ -72,6 +72,13 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     text_font_size: controls font size of bounding box labels as well as missing timer text
     uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
     """
+
+    # notify that markers aren't visible
+    if hochregallager.coordinates is None:
+        image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
+        notify_markers_missing(image_pil, text_font_size)
+        np.copyto(image, np.array(image_pil))
+
     # visualize Hochregallager grid outline
     if (hochregallager.coordinates is not None) and (not skip_grid_outline):
         # convert image for PIL methods
@@ -263,6 +270,10 @@ def draw_bounding_box_on_image_tmp(image,
     # Each display_str has a top and bottom margin of 0.05x.
     total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
 
+    #####
+    beautify_bbox(draw, left, right, top, bottom, color)
+    #####
+
     if top > total_display_str_height:
         text_bottom = top
     else:
@@ -321,7 +332,7 @@ def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
                     (left + margin, text_bottom - text_height - margin),
                     display_str,
                     # fill takes RGBA value, A stands for alpha - opacity value
-                    fill=(0, 0, 255, 255),
+                    fill=(255, 255, 255, 255),
                     font=font,
                     align='center')
 
@@ -332,14 +343,106 @@ def visualize_hochregallager_grid_outline(image, hochregallager, thickness):
     draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill="red")
 
 
-def filter_detections_by_score(boxes, classes, scores, min_score_thresh):
+def notify_markers_missing(image_pil, text_font_size):
+    draw = ImageDraw.Draw(image_pil)
+    height, width, _ = image_pil.shape
+    try:
+        ################ FONT ###################
+        font_size = text_font_size
+        font = ImageFont.truetype('arial.ttf', font_size)
+        ################ FONT ###################
+
+    except IOError:
+        font = ImageFont.load_default()
+    display_str = "Aruco marker(s) not visible!"
+    text_width, text_height = font.getsize(display_str)
+
+    # centre string
+    left = (width/2) - (text_width/2)
+    right = (width/2) + (text_width/2)
+    bottom = height*0.95
+    text_bottom = bottom + text_height
+    margin = np.ceil(0.05 * text_height)
+    if (2*margin) > bottom:
+        margin = 0
+
+    draw.rectangle(
+        [(left, text_bottom - text_height - 2 * margin), (right, text_bottom)], fill=(255, 255, 255, 255)
+    )
+
+    draw.text(
+        (left + margin, text_bottom - text_height - margin),
+        display_str,
+        # fill takes RGBA value, A stands for alpha - opacity value
+        fill=(0, 0, 255, 255),
+        font=font,
+        align='center'
+    )
+
+
+def beautify_bbox(draw, left, right, top, bottom, color):
+    length = min(int((right - left) * 0.15), int((bottom - top) * 0.15))
+    #color = 'red'  # (73,116,164)
+    width = 10
+
+    ## topleft corner
+    coords = [(left, top), (left + length, top)]
+    draw.line(coords, fill=color, width=width)
+    # smooth out corners with circle
+    circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+    coords = [(left, top), (left, top + length)]
+    draw.line(coords, fill=color, width=15)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+
+    ## topright corner
+    coords = [(right, top), (right - length, top)]
+    draw.line(coords, fill=color, width=15)
+    # smooth out corners with circle
+    circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+    coords = [(right, top), (right, top + length)]
+    draw.line(coords, fill=color, width=15)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+
+    ## bottomleft corner
+    coords = [(left, bottom), (left + length, bottom)]
+    draw.line(coords, fill=color, width=15)
+    # smooth out corners with circle
+    circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+    coords = [(left, bottom), (left, bottom - length)]
+    draw.line(coords, fill=color, width=15)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+
+    ## bottomright corner
+    coords = [(right, bottom), (right - length, bottom)]
+    draw.line(coords, fill=color, width=15)
+    # smooth out corners with circle
+    circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+    coords = [(right, bottom), (right, bottom - length)]
+    draw.line(coords, fill=color, width=15)
+    circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
+
+
+def circle(draw, center, radius, fill):
+    draw.ellipse((center[0] - radius + 1, center[1] - radius + 1, center[0] + radius - 1, center[1] + radius - 1),
+                 fill=fill, outline=None)
+
+
+def filter_detections_by_score(boxes, classes, scores, min_score_thresh, category_index):
     # Create an empty (boolean) list for filtering detections
     filter_arr = []
 
     # boxes: [N,4], N = number of boxes
     for i in range(boxes.shape[0]):
         if scores[i] > min_score_thresh:
-            filter_arr.append(True)
+            # safe switch, "BackGround" was added to work around PASCAL metric bug (first class has precision of ~0)
+            if category_index[classes[i]]['name'] == "BackGround":
+                filter_arr.append(False)
+            else:
+                filter_arr.append(True)
         else:
             filter_arr.append(False)
 
