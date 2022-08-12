@@ -21,14 +21,14 @@ test/train ratio: 20%, 80%
 **my_ssd_mobnet_4batch_401img,**\
 **my_ssd_resnet**\
 image data distribution:\
-401 imgs in total\
-93 imgs with WerkStueck class and/or Behaelter class visible,\
-276 imgs with Hochregallager and WerkStueck class + Behaelter class visible\
-(166 back view, 110 front view of Hochregallager)\
-32 background imgs of Hochregallager, no labels included\
+722 imgs in total (401 imgs originally, 321 imgs artificially created)\
+166 (93) imgs with WerkStueck class and/or Behaelter class visible,\
+500 (276) imgs with Hochregallager and WerkStueck class + Behaelter class visible\
+(301 (166) back view, 199 (110) front view of Hochregallager)\
+56 (32) background imgs of Hochregallager, no labels included\
 Instances:\
 test -   WerkStueck class 232, Behaelter 355\
-train - WerkStueck class 1101, Behaelter 1539\
-total - WerkStueck class 1333, Behaelter 1894
+train - WerkStueck class 2202 (1101), Behaelter 3078 (1539)\
+total - WerkStueck class 2434, Behaelter 3433
 
-test/train ratio: 20%, 80%
+test/train ratio: 11%, 89%
