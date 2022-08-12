@@ -345,7 +345,7 @@ def visualize_hochregallager_grid_outline(image, hochregallager, thickness):
 
 def notify_markers_missing(image_pil, text_font_size):
     draw = ImageDraw.Draw(image_pil)
-    height, width, _ = image_pil.shape
+    width, height = image_pil.size
     try:
         ################ FONT ###################
         font_size = text_font_size

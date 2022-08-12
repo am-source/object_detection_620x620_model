@@ -172,12 +172,23 @@ def get_aruco_markers(hochregallager):
     # smallest dictionary, since only 2 markers are needed and it's easier to detect simpler patterns
     aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
     current_frame = hochregallager.image.copy()
-    # gray scale should help improve the marker detection
-    gray_img = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+    # change contrast to make aruco detection easier, reduces influence of lighting
+    current_frame = modify_contrast(current_frame)
 
     # detectMarkers returns multiple(!) objects for each return val
-    aruco_bboxes, aruco_ids, _ = cv2.aruco.detectMarkers(gray_img, aruco_dict, parameters=aruco_params)
+    aruco_bboxes, aruco_ids, _ = cv2.aruco.detectMarkers(current_frame, aruco_dict, parameters=aruco_params)
     return aruco_bboxes, aruco_ids
+
+
+def modify_contrast(image, contrast=60):
+    # contrast of 60 seems to work best
+    f = 131*(contrast + 127)/(127*(131-contrast))
+    alpha = f
+    beta = 0
+    gamma = 127*(1-f)
+
+    image = cv2.addWeighted(image, alpha, image, beta, gamma)
+    return image
 
 
 def get_approx_hochregallager_grid_width(hochregallager):
