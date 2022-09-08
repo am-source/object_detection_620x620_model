@@ -438,11 +438,7 @@ def filter_detections_by_score(boxes, classes, scores, min_score_thresh, categor
     # boxes: [N,4], N = number of boxes
     for i in range(boxes.shape[0]):
         if scores[i] > min_score_thresh:
-            # safe switch, "BackGround" was added to work around PASCAL metric bug (first class has precision of ~0)
-            if category_index[classes[i]]['name'] == "BackGround":
-                filter_arr.append(False)
-            else:
-                filter_arr.append(True)
+            filter_arr.append(True)
         else:
             filter_arr.append(False)
 
