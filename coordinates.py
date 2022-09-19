@@ -320,6 +320,38 @@ def get_grid_cell_top_and_bottom(hochregallager, row, column):
                         ||                 ||
 
     """
+    # if column == 0:
+    #     if row == 0:
+    #         percent_top = 0
+    #         percent_bottom = 1/3
+    #     elif row == 1:
+    #         percent_top = 1/3
+    #         percent_bottom = 2/3
+    #     else:
+    #         percent_top = 2/3
+    #         percent_bottom = 1
+    #
+    # elif column == 1:
+    #     if row == 0:
+    #         percent_top = 0
+    #         percent_bottom = 0.3
+    #     elif row == 1:
+    #         percent_top = 0.3
+    #         percent_bottom = 0.6
+    #     else:
+    #         percent_top = 0.6
+    #         percent_bottom = 1
+    #
+    # else:
+    #     if row == 0:
+    #         percent_top = 0
+    #         percent_bottom = 0.3
+    #     elif row == 1:
+    #         percent_top = 0.3
+    #         percent_bottom = 0.6
+    #     else:
+    #         percent_top = 0.6
+    #         percent_bottom = 1
     if column == 0:
         if row == 0:
             percent_top = 0

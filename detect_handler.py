@@ -69,8 +69,7 @@ def handle_detection(camera, hochregallager):
         detections["detection_boxes"],
         detections["detection_classes"] + label_id_offset,
         detections["detection_scores"],
-        min_score_threshold,
-        category_index
+        min_score_threshold
     )
     (
         filtered_WerkStueck_detections,

@@ -74,7 +74,8 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     """
 
     # notify that markers aren't visible
-    if hochregallager.coordinates is None:
+    #if hochregallager.coordinates is None:
+    if not hochregallager.grid_successfully_initialized:
         image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         notify_markers_missing(image_pil, text_font_size)
         np.copyto(image, np.array(image_pil))
@@ -431,7 +432,7 @@ def circle(draw, center, radius, fill):
                  fill=fill, outline=None)
 
 
-def filter_detections_by_score(boxes, classes, scores, min_score_thresh, category_index):
+def filter_detections_by_score(boxes, classes, scores, min_score_thresh):
     # Create an empty (boolean) list for filtering detections
     filter_arr = []
 
