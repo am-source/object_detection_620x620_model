@@ -5,4 +5,6 @@ Tensorflow/workspace/annotations/train.record
 Tensorflow/workspace/images
 __pycache__
 Tensorflow/workspace/models/my_ssd_resnet/*.data-00000-of-00001
+Tensorflow/workspace/models/FINAL_back_view/eval
+Tensorflow/workspace/models/FINAL_back_view/train
 BA_PIC_COLLECTION
