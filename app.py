@@ -12,7 +12,8 @@ app = Flask(__name__)
 
 
 ########## FLASK ROUTES ############################################################################
-@app.route('/handle_resolution', methods=['GET'])
+# handles resolution changes being sent from web ui
+@app.route('/handle_resolution')
 def handle_resolution():
     fst_res = int(request.args['fst_res'])
     snd_res = int(request.args['snd_res'])
@@ -22,6 +23,8 @@ def handle_resolution():
     # need to send some response -> just reload
     return render_template('index.html')
 
+
+# generates frames for /video route, starts (processing) cycle by calling handle_detection
 def generate_frames():
     cam = MyCamera()
     # print("ENTERED generate_frames!")
@@ -44,24 +47,28 @@ def generate_frames():
         )
 
 
-@app.route('/card_update', methods=['GET'])
+# updates the information on the cards on the left side of the web UI
+@app.route('/card_update')
 def card_update():
     # dict keys: coords, score, filled, wkstk_score, color, missing
     behaelter_dict = create_behaelter_dict()
     return jsonify(pos_dict=behaelter_dict)
 
 
+# renders page once loaded by user
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
+# provides video stream for flask
 @app.route('/video')
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 ########## FLASK ROUTES ############################################################################
 
 
+# forwards/derives information to use for left side of web UI
 def create_behaelter_dict():
     behaelter_dict = {}
     # behaelter (dicts) are numbered 1-9
