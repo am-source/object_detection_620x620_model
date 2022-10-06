@@ -251,7 +251,9 @@ def get_tmp_grid_positions(hochregallager):
     grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
 
     # create copy of behaelter_obj_list, remove already assigned behaelter only from this copy
-    tmp_behaelter_obj_list = hochregallager.behaelter_obj_list.copy()
+    tmp_list = hochregallager.behaelter_obj_list.copy()
+    tmp_list = [elem.bounding_box for elem in tmp_list]
+    behaelter_np_arr = np.array(tmp_list)
 
     # create 3x3 array to temporarily act as Hochregallager.behaelter_arr, if the grid doesnt fulfill set conditions
     # then no behaelter should actually be assigned to the real Hochregallager.behaelter_arr
@@ -271,12 +273,6 @@ def get_tmp_grid_positions(hochregallager):
             left = left + (grid_cell_width)
             right = right + (grid_cell_width)
 
-            # create a numpy 2d arr for bounding boxes of hochregallager.behaelter_obj_list (needed for bounding_box_intersect)
-            tmp_list = []
-            for obj in tmp_behaelter_obj_list:
-                tmp_list.append(obj.bounding_box)
-            behaelter_np_arr = np.array(tmp_list)
-
             grid_cell_bounding_box = (top, left, bottom, right)
             intersect_elements = bounding_box_intersect(grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True)
 
@@ -292,11 +288,12 @@ def get_tmp_grid_positions(hochregallager):
                             actual_intersect_elem = elem
 
                 # remove elem to avoid multiple assignment and avoid unnecessary iterations
-                for obj in tmp_behaelter_obj_list:
-                    if actual_intersect_elem[0] == obj.bounding_box:
-                        tmp_behaelter_obj_list.remove(obj)
+                bool_mask = []
+                for k in range(behaelter_np_arr.shape[0]):
+                    condition = False if tuple(behaelter_np_arr[k]) == actual_intersect_elem[0] else True
+                    bool_mask.append(condition)
+                behaelter_np_arr = behaelter_np_arr[bool_mask]
 
-                # find corresponding behaelter object and assign to grid
                 for elem in hochregallager.behaelter_obj_list:
                     if elem.bounding_box == actual_intersect_elem[0]:
                         behaelter_obj = elem
