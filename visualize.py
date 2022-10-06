@@ -12,7 +12,7 @@ import color_detector
 
 # # Visualization
 # @override visualization_utils.visualize_boxes_and_labels_on_image_array
-# Modified version - removed all unnecessary parts
+# Modified version - removed unnecessary parts and added app specific functionality
 STANDARD_COLORS = viz_utils.STANDARD_COLORS
 
 
@@ -74,7 +74,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     """
 
     # notify that markers aren't visible
-    #if hochregallager.coordinates is None:
+    # if hochregallager.coordinates is None:
     if not hochregallager.grid_successfully_initialized:
         image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
         notify_markers_missing(image_pil, text_font_size)
@@ -296,46 +296,74 @@ def draw_bounding_box_on_image_tmp(image,
 
 
 def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
-    draw = ImageDraw.Draw(image)
     # prepare vars needed to determine grid cell coordinates
     ymin, xmin, _, _ = hochregallager.coordinates
-    grid_width_in_px, grid_height_in_px = hochregallager.width_in_px, hochregallager.height_in_px
+    grid_width_in_px = hochregallager.width_in_px
     percent = 1/3
     grid_cell_width = grid_width_in_px*percent
-    grid_cell_height = grid_height_in_px*percent
 
-    # put text in centre of the grid cell
-    top = ymin - (grid_cell_height*0.5)
     # grid shape: 3x3
     for row in range(3):
-        top = top + (grid_cell_height)
         left = (xmin - grid_cell_width)
         for column in range(3):
-            left = left + (grid_cell_width)
+            left = left + grid_cell_width
 
+            # put text in centre of the grid cell
+            top, bottom = coord.get_grid_cell_top_and_bottom(hochregallager, row, column)
+            height_center = bottom - (bottom-top)/2
+            width_center = left + (grid_cell_width*0.5)
+
+            # check if timer is actually running
             if hochregallager.grid_cell_timer_arr[row][column] != 0:
                 grid_cell_timer_val = hochregallager.get_grid_cell_timer_value(row, column)
 
                 try:
                     ################ FONT ###################
                     font_size = text_font_size
-                    font = ImageFont.truetype('arial.ttf', font_size)
+                    font = ImageFont.truetype('arial.ttf', font_size+1)
                     ################ FONT ###################
 
                 except IOError:
                     font = ImageFont.load_default()
                 display_str = 'missing:\n{}s'.format(round(grid_cell_timer_val, 2))
-                text_width, text_height = font.getsize(display_str)
-                text_bottom = top
-                margin = np.ceil(0.05 * text_height)
-                left = left + (grid_cell_width*0.5)
-                draw.text(
-                    (left + margin, text_bottom - text_height - margin),
-                    display_str,
-                    # fill takes RGBA value, A stands for alpha - opacity value
-                    fill=(255, 255, 255, 255),
-                    font=font,
-                    align='center')
+                draw_text_on_white_filled_rectangle(
+                    image, width_center=width_center, height_center=height_center, font=font, display_str=display_str)
+
+
+def draw_text_on_white_filled_rectangle(image, width_center, height_center, font, display_str):
+    draw = ImageDraw.Draw(image)
+
+    # if multiple lines are printed, adjust width and height
+    if '\n' in display_str:
+        string_lst = display_str.split('\n')
+        max_string = max(string_lst, key=len)
+        text_width, text_height = font.getsize(max_string)
+        text_height = text_height*len(string_lst)
+    else:
+        text_width, text_height = font.getsize(display_str)
+
+    # centre string
+    left = width_center - (text_width/2)
+    right = width_center + (text_width/2)
+    bottom = height_center
+    text_bottom = bottom + text_height
+    margin = np.ceil(0.05 * text_height)
+    if (2*margin) > bottom:
+        margin = 0
+
+    draw.rectangle(
+        [(left, text_bottom - text_height - 2 * margin), (right, text_bottom)],
+        # fill takes RGBA value, A stands for alpha - opacity value
+        fill=(255, 255, 255, 255)
+    )
+
+    draw.text(
+        (left + margin, text_bottom - text_height - margin),
+        display_str,
+        fill=(0, 0, 255, 255),
+        font=font,
+        align='center'
+    )
 
 
 def visualize_hochregallager_grid_outline(image, hochregallager, thickness):
@@ -345,7 +373,6 @@ def visualize_hochregallager_grid_outline(image, hochregallager, thickness):
 
 
 def notify_markers_missing(image_pil, text_font_size):
-    draw = ImageDraw.Draw(image_pil)
     width, height = image_pil.size
     try:
         ################ FONT ###################
@@ -356,31 +383,15 @@ def notify_markers_missing(image_pil, text_font_size):
     except IOError:
         font = ImageFont.load_default()
     display_str = "Aruco marker(s) not visible!"
-    text_width, text_height = font.getsize(display_str)
 
-    # centre string
-    left = (width/2) - (text_width/2)
-    right = (width/2) + (text_width/2)
-    bottom = height*0.95
-    text_bottom = bottom + text_height
-    margin = np.ceil(0.05 * text_height)
-    if (2*margin) > bottom:
-        margin = 0
+    width_center = width/2
+    height_center = height*0.95
 
-    draw.rectangle(
-        [(left, text_bottom - text_height - 2 * margin), (right, text_bottom)], fill=(255, 255, 255, 255)
-    )
-
-    draw.text(
-        (left + margin, text_bottom - text_height - margin),
-        display_str,
-        # fill takes RGBA value, A stands for alpha - opacity value
-        fill=(0, 0, 255, 255),
-        font=font,
-        align='center'
-    )
+    draw_text_on_white_filled_rectangle(image_pil, width_center=width_center, height_center= height_center,
+                                        font=font, display_str=display_str)
 
 
+# draws some additional lines on the corners of the bounding boxes
 def beautify_bbox(draw, left, right, top, bottom, color):
     length = min(int((right - left) * 0.15), int((bottom - top) * 0.15))
     #color = 'red'  # (73,116,164)
@@ -432,6 +443,7 @@ def circle(draw, center, radius, fill):
                  fill=fill, outline=None)
 
 
+####################  FILTER  ##############################################################
 def filter_detections_by_score(boxes, classes, scores, min_score_thresh):
     # Create an empty (boolean) list for filtering detections
     filter_arr = []
@@ -479,3 +491,4 @@ def filter_detections_by_class(boxes, classes, scores, category_index):
         filtered_Behaelter_boxes, filtered_Behaelter_classes, filtered_Behaelter_scores)
 
     return (filtered_WerkStueck_detections, filtered_Behaelter_detections)
+####################  FILTER  ##############################################################
