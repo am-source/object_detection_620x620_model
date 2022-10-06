@@ -12,8 +12,8 @@ app = Flask(__name__)
 
 
 ########## FLASK ROUTES ############################################################################
-@app.route('/handle_data', methods=['GET'])
-def handle_data():
+@app.route('/handle_resolution', methods=['GET'])
+def handle_resolution():
     fst_res = int(request.args['fst_res'])
     snd_res = int(request.args['snd_res'])
     if fst_res > 0 and snd_res > 0:

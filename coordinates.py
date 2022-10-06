@@ -217,8 +217,8 @@ def handle_grid_positions(hochregallager):
                     if hochregallager.behaelter_arr[i][j] is None:
                         hochregallager.assign_grid_pos(
                             behaelter_obj, row=i, column=j)
-                        # covers the case where this is the first iteration after launching the program. Since no timer was
-                        # started beforehand, there is no running timer to stop
+                        # covers the case where this is the first time this position is filled after launching the
+                        # program. Since no timer was started beforehand, there is no running timer to stop
                         if hochregallager.grid_cell_timer_arr[i][j] == 0:
                             pass
                         else:
