@@ -66,10 +66,10 @@ def detect_color_in_bounding_box(image_np, current_box, used_normalized_coordina
         )
 
     # coordinates corresponding to the center 50% of the bounding box surface area
-    y = int(top + (bottom - top) * 0.25)
-    h = int(top + (bottom - top) * 0.75)
-    x = int(left + (right - left) * 0.25)
-    w = int(left + (right - left) * 0.75)
+    y = int(top + (bottom - top) * 0.125)
+    h = int(top + (bottom - top) * 0.875)
+    x = int(left + (right - left) * 0.125)
+    w = int(left + (right - left) * 0.875)
 
     # crop image to center of current bounding box
     cropped_img = image[y:h, x:w]
