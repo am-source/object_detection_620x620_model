@@ -63,13 +63,20 @@ def handle_detection(camera, hochregallager):
     min_score_threshold = 0.6
     label_id_offset = 1
 
-    # filter detections by min score and classes
+    # filter detections by min score
     boxes, classes, scores = visualize.filter_detections_by_score(
         detections["detection_boxes"],
         detections["detection_classes"] + label_id_offset,
         detections["detection_scores"],
         min_score_threshold
     )
+
+    # change filtered boxes coordinates from normalized (val 0-1) to actual pixel values
+    for i in range(boxes.shape[0]):
+        boxes[i] = coord.get_box_coordinates_from_normalized_coordinates(
+            boxes[i], image_np_with_detections)
+
+    # filter detections by classes
     (
         filtered_WerkStueck_detections,
         filtered_Behaelter_detections,
@@ -93,7 +100,6 @@ def handle_detection(camera, hochregallager):
         category_index,
         behaelter_detections=filtered_Behaelter_detections,
         hochregallager=hochregallager,
-        use_normalized_coordinates=True,
         max_boxes_to_draw=20,
         agnostic_mode=True,
         line_thickness=2,

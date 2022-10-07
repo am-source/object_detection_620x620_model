@@ -24,7 +24,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
     category_index,
     behaelter_detections,
     hochregallager,
-    use_normalized_coordinates=False,
     max_boxes_to_draw=20,
     agnostic_mode=False,
     line_thickness=4,
@@ -51,8 +50,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
       category index `id` and category name `name`) keyed by category indices.
     behaelter_detections: filtered detections (boxes,classes,scores) containing only behaelter class
     hochregallager: instance of Hochregallager
-    use_normalized_coordinates: whether boxes is to be interpreted as
-      normalized coordinates or not.
     max_boxes_to_draw: maximum number of boxes to visualize.  If None, draw
       all boxes.
     agnostic_mode: boolean (default: False) controlling whether to evaluate in
@@ -117,10 +114,8 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                     display_str = str(class_name)
                 # handle Behaelter case
                 if category_index[classes[i]]["name"] == "Behaelter":
-                    pos = hochregallager.get_behaelter_pos_by_behaelter_box(
-                        image, box)
-                    behaelter = hochregallager.get_behaelter_obj_by_behaelter_box(
-                        image, box)
+                    pos = hochregallager.get_behaelter_pos_by_behaelter_box(box)
+                    behaelter = hochregallager.get_behaelter_obj_by_behaelter_box(box)
                     if not skip_pos:
                         if pos is None:
                             display_str2 = "POS: N/A"
@@ -141,8 +136,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                 # handle WerkStueck case
                 if category_index[classes[i]]["name"] == "WerkStueck":
                     if not skip_pos:
-                        pos = hochregallager.get_werkstueck_pos_by_werkstueck_box(
-                            image, box)
+                        pos = hochregallager.get_werkstueck_pos_by_werkstueck_box(box)
                         if pos is None:
                             display_str2 = "POS: N/A"
                         else:
@@ -155,7 +149,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                             display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
 
                     wkstk_color = color_detector.detect_color_in_bounding_box(
-                        image, box, use_normalized_coordinates
+                        image, box
                     )
                     display_str = "{}(Color:{})".format(
                         display_str, wkstk_color)
@@ -191,9 +185,7 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
             simple_list = [box]
             # np arr needed for intersect
             behaelter_np_arr = np.array(simple_list)
-            im_height = image.shape[0]
-            im_width = image.shape[1]
-            box_grid_intersect = coord.bounding_box_intersect(hochregallager.coordinates, behaelter_np_arr, im_height=im_height, im_width=im_width)
+            box_grid_intersect = coord.bounding_box_intersect(hochregallager.coordinates, behaelter_np_arr)
             # no intersect between grid and box -> should be a mistake
             if len(box_grid_intersect) == 0:
                 continue
@@ -208,7 +200,6 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
             color=color,
             thickness=0 if skip_boxes else line_thickness,
             display_str_list=str_list[tmp_i],
-            use_normalized_coordinates=use_normalized_coordinates,
             bounding_box_font_size=text_font_size,
         )
         np.copyto(image, np.array(image_pil))
@@ -225,7 +216,6 @@ def draw_bounding_box_on_image_tmp(image,
                                    color='red',
                                    thickness=4,
                                    display_str_list=(),
-                                   use_normalized_coordinates=True,
                                    bounding_box_font_size=24):
     """
     Args:
@@ -238,17 +228,12 @@ def draw_bounding_box_on_image_tmp(image,
     thickness: line thickness. Default value is 4.
     display_str_list: list of strings to display in box
                       (each to be shown on its own line).
-    use_normalized_coordinates: If True (default), treat coordinates
       ymin, xmin, ymax, xmax as relative to the image.  Otherwise treat
       coordinates as absolute.
     """
     draw = ImageDraw.Draw(image)
-    im_width, im_height = image.size
-    if use_normalized_coordinates:
-        (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
-                                      ymin * im_height, ymax * im_height)
-    else:
-        (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
+
+    (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
     if thickness > 0:
         draw.line([(left, top), (left, bottom), (right, bottom), (right, top),
                    (left, top)],

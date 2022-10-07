@@ -23,7 +23,8 @@ def one_dim_intersect(a0, a1, b0, b1):
 
 
 def bounding_box_intersect(
-    primary_box, secondary_boxes, secondary_boxes_scores=None, im_height=None, im_width=None, needs_normalization=True, return_percent=False, percent_threshold=0.2
+    primary_box, secondary_boxes, secondary_boxes_scores=None, return_percent=False,
+        percent_threshold=0.2
 ):
     p_ymin, p_xmin, p_ymax, p_xmax = primary_box
     #primary_box_area = float((p_xmax - p_xmin) * (p_ymax - p_ymin))
@@ -32,22 +33,12 @@ def bounding_box_intersect(
 
     # loop over all WerkStueck bounding boxes and find the corresponding one
     for i in range(secondary_boxes.shape[0]):
-        if needs_normalization:
-            (
-                s_ymin,
-                s_xmin,
-                s_ymax,
-                s_xmax,
-            ) = get_box_coordinates_from_normalized_coordinates(
-                secondary_boxes[i], im_height, im_width
-            )
-        else:
-            (
-                s_ymin,
-                s_xmin,
-                s_ymax,
-                s_xmax,
-            ) = secondary_boxes[i]
+        (
+            s_ymin,
+            s_xmin,
+            s_ymax,
+            s_xmax,
+        ) = secondary_boxes[i]
 
         intersect_width = one_dim_intersect(p_xmin, p_xmax, s_xmin, s_xmax)
         intersect_height = one_dim_intersect(p_ymin, p_ymax, s_ymin, s_ymax)
@@ -83,19 +74,17 @@ def bounding_box_intersect(
 
 
 def get_box_coordinates_from_normalized_coordinates(
-    norm_box, im_height, im_width, return_int=False
+    norm_box, image
 ):
+    im_height = image.shape[0]
+    im_width = image.shape[1]
+
     ymin, xmin, ymax, xmax = (
         norm_box[0] * im_height,
         norm_box[1] * im_width,
         norm_box[2] * im_height,
         norm_box[3] * im_width,
     )
-    if return_int:
-        ymin = int(ymin)
-        xmin = int(xmin)
-        ymax = int(ymax)
-        xmax = int(xmax)
     return (ymin, xmin, ymax, xmax)
 
 
@@ -274,7 +263,7 @@ def get_tmp_grid_positions(hochregallager):
             right = right + (grid_cell_width)
 
             grid_cell_bounding_box = (top, left, bottom, right)
-            intersect_elements = bounding_box_intersect(grid_cell_bounding_box, behaelter_np_arr, needs_normalization=False, return_percent=True)
+            intersect_elements = bounding_box_intersect(grid_cell_bounding_box, behaelter_np_arr, return_percent=True)
 
             if len(intersect_elements) >= 1:
                 # if more than one behaelter is (partially) in a grid cell, then get the behaelter with the highest overlap

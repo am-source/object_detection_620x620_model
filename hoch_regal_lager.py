@@ -66,48 +66,30 @@ class Hochregallager:
                     return (row, column)
         return None
 
-    def get_behaelter_pos_by_behaelter_box(self, image, behaelter_box):
-        im_height = image.shape[0]
-        im_width = image.shape[1]
-        # behaelter_arr contains behaelter obj with de'normalized' coordinates
-        behaelter_box = coord.get_box_coordinates_from_normalized_coordinates(
-            behaelter_box, im_height, im_width)
+    def get_behaelter_pos_by_behaelter_box(self, behaelter_box):
         # grid shape: 3x3
         for row in range(3):
             for column in range(3):
-                # REMOVE following line
-                if self.behaelter_arr[row][column] is None:
-                    pass
-
-                else:
+                # check None first to avoid attributeError
+                if self.behaelter_arr[row][column] is not None:
                     if behaelter_box == self.behaelter_arr[row][column].bounding_box:
                         return (row, column)
-
         return None
 
-    def get_behaelter_obj_by_behaelter_box(self, image, behaelter_box):
-        im_height = image.shape[0]
-        im_width = image.shape[1]
-        # behaelter_arr contains behaelter obj with de'normalized' coordinates
-        behaelter_box = coord.get_box_coordinates_from_normalized_coordinates(
-            behaelter_box, im_height, im_width)
+    def get_behaelter_obj_by_behaelter_box(self, behaelter_box):
         # grid shape: 3x3
         for behaelter_obj in self.behaelter_obj_list:
             if behaelter_obj.bounding_box == behaelter_box:
                 return behaelter_obj
         return None
 
-    def get_werkstueck_pos_by_werkstueck_box(self, image, wkstk_box):
-        im_height = image.shape[0]
-        im_width = image.shape[1]
-        # behaelter_arr contains behaelter obj with de'normalized' coordinates
-        wkstk_box = coord.get_box_coordinates_from_normalized_coordinates(
-            wkstk_box, im_height, im_width)
+    def get_werkstueck_pos_by_werkstueck_box(self, wkstk_box):
         # grid shape: 3x3
         for row in range(3):
             for column in range(3):
-                if wkstk_box == self.behaelter_arr[row][column].werk_stueck.bounding_box:
-                    return (row, column)
+                if self.behaelter_arr[row][column] is not None:
+                    if wkstk_box == self.behaelter_arr[row][column].werk_stueck.bounding_box:
+                        return (row, column)
         return None
 
     # timer runtime in sec

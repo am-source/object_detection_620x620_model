@@ -56,14 +56,9 @@ purple_mask_lower = np.array([155, lower_sat, lower_val], np.uint8)
 purple_mask_upper = np.array([165, upper_sat, upper_val], np.uint8)
 
 
-def detect_color_in_bounding_box(image_np, current_box, used_normalized_coordinates):
+def detect_color_in_bounding_box(image_np, current_box):
     image = image_np.copy()
     top, left, bottom, right = current_box
-    # adjust coordinates:
-    if used_normalized_coordinates:
-        (top, left, bottom, right) = coord.get_box_coordinates_from_normalized_coordinates(
-            current_box, image.shape[0], image.shape[1]
-        )
 
     # coordinates corresponding to the center 50% of the bounding box surface area
     y = int(top + (bottom - top) * 0.125)
