@@ -257,7 +257,7 @@ def draw_bounding_box_on_image_tmp(image,
     total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
 
     #####
-    beautify_bbox(draw, left, right, top, bottom, color)
+    beautify_bbox(draw, left, right, top, bottom, color, thickness)
     #####
 
     if top > total_display_str_height:
@@ -377,10 +377,10 @@ def notify_markers_missing(image_pil, text_font_size):
 
 
 # draws some additional lines on the corners of the bounding boxes
-def beautify_bbox(draw, left, right, top, bottom, color):
+def beautify_bbox(draw, left, right, top, bottom, color, thickness):
     length = min(int((right - left) * 0.15), int((bottom - top) * 0.15))
-    #color = 'red'  # (73,116,164)
-    width = 10
+    #width = 10
+    width = thickness*3
 
     ## topleft corner
     coords = [(left, top), (left + length, top)]
@@ -389,37 +389,37 @@ def beautify_bbox(draw, left, right, top, bottom, color):
     circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
     coords = [(left, top), (left, top + length)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
 
     ## topright corner
     coords = [(right, top), (right - length, top)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     # smooth out corners with circle
     circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
     coords = [(right, top), (right, top + length)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
 
     ## bottomleft corner
     coords = [(left, bottom), (left + length, bottom)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     # smooth out corners with circle
     circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
     coords = [(left, bottom), (left, bottom - length)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
 
     ## bottomright corner
     coords = [(right, bottom), (right - length, bottom)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     # smooth out corners with circle
     circle(draw, (coords[0][0], coords[0][1]), width / 2, color)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
     coords = [(right, bottom), (right, bottom - length)]
-    draw.line(coords, fill=color, width=15)
+    draw.line(coords, fill=color, width=width)
     circle(draw, (coords[1][0], coords[1][1]), width / 2, color)
 
 
