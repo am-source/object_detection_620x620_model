@@ -5,33 +5,21 @@ import behaelter
 
 class Hochregallager:
     def __init__(self):
+        # list of all behaelter objects created, not yet assigned positions
         self.behaelter_obj_list = []
         self.width_in_px = None
         self.height_in_px = None
         self.coordinates = None
+        # list of HRL positions, either assigned None or a behealer object
         self.behaelter_arr = [[None for x in range(3)] for y in range(3)]
+        # current missing timer for all positions, 0 when not activated, otherwise time.time() when removed
         self.grid_cell_timer_arr = [[0 for x in range(3)] for y in range(3)]
         # missing_time_arr keeps a list of missing times of Behaelter in every cell
         self.missing_time_record_arr = [[[] for x in range(3)] for y in range(3)]
         self.grid_successfully_initialized = False
         self.image = None
 
-    def set_image(self, image):
-        self.image = image
-
-    def add_behaelter(self, behaelter_obj):
-        self.behaelter_obj_list.append(behaelter_obj)
-
-    def assign_grid_pos(self, behaelter, row, column):
-        self.behaelter_arr[row][column] = behaelter
-
-    def remove_behaelter(self, row, column):
-        self.behaelter_arr[row][column] = None
-
-    # call after a new frame is presented
-    def clear_behaelter_list(self):
-        self.behaelter_obj_list = []
-
+    # handles all grid related tasks
     def handle_grid_coordinates_and_pos_assignment(self):
         self.initialize_grid_coordinates()
         coord.handle_grid_positions(self)
@@ -46,13 +34,30 @@ class Hochregallager:
             self.height_in_px = coord.get_approx_hochregallager_grid_height(
                 self)
 
+    def set_image(self, image):
+        # assign current frame to HRL
+        self.image = image
+
+    def add_behaelter(self, behaelter_obj):
+        self.behaelter_obj_list.append(behaelter_obj)
+
+    def assign_grid_pos(self, behaelter, row, column):
+        self.behaelter_arr[row][column] = behaelter
+
+    def remove_behaelter(self, row, column):
+        self.behaelter_arr[row][column] = None
+
+    # called after a new frame is presented
+    def clear_behaelter_list(self):
+        self.behaelter_obj_list = []
+
     def start_grid_cell_timer(self, row, column, current_time):
         self.grid_cell_timer_arr[row][column] = current_time
 
     def stop_grid_cell_timer(self, row, column):
         missing_time = self.get_grid_cell_timer_value(row, column)
         # at least 5s to be counted as missing, since missing times of around 0-3 are usually mistakes resulting
-        # from detection and processing
+        # from detection and processing or loss of frames
         if missing_time >= 5:
             self.missing_time_record_arr[row][column].append(missing_time)
         # print("TIME RECORD OF {}x{}: {}".format(row, column, self.missing_time_record_arr[row][column]))

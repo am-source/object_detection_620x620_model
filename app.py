@@ -27,12 +27,9 @@ def handle_resolution():
 # generates frames for /video route, starts (processing) cycle by calling handle_detection
 def generate_frames():
     cam = MyCamera()
-    # print("ENTERED generate_frames!")
     while True:
-        # print("IN while True BLOCK!")
         if not cam.frame_available():
             continue
-        # print("IN while True BLOCK! - IF ret WAS TRUE")
 
         image_np_with_detections = detect.handle_detection(camera=cam, hochregallager=hochregallager)
         # resize to match original resolution
@@ -138,6 +135,7 @@ def create_behaelter_dict():
     return behaelter_dict
 
 
+# only one instance of HRL created right at the beginning
 hochregallager = Hochregallager()
 cam_resolution = (1280, 720)
 

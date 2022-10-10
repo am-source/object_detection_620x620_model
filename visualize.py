@@ -11,7 +11,7 @@ import color_detector
 
 
 # # Visualization
-# @override visualization_utils.visualize_boxes_and_labels_on_image_array
+# based on visualization_utils.visualize_boxes_and_labels_on_image_array
 # Modified version - removed unnecessary parts and added app specific functionality
 STANDARD_COLORS = viz_utils.STANDARD_COLORS
 
@@ -123,10 +123,10 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                             row, column = pos
                             display_str2 = "POS: {}x{}".format(row, column)
                     if not skip_coord and hochregallager.grid_successfully_initialized:
-                        ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
+                        ymin, xmin, _, _ = coord.get_box_coord_relative_to_grid_coord(
                             box, hochregallager)
-                        display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
-                            display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
+                        display_str2 = "{}, Left:{} Top:{}".format(
+                            display_str2, round(xmin), round(ymin))
                     if behaelter.empty:
                         display_str = "{}(EMPTY)".format(display_str)
                     else:
@@ -143,10 +143,10 @@ def visualize_boxes_and_labels_for_behaelter_and_werkstueck(
                             row, column = pos
                             display_str2 = "POS: {}x{}".format(row, column)
                     if not skip_coord and hochregallager.grid_successfully_initialized:
-                        ymin, xmin, ymax, xmax = coord.get_box_coord_relative_to_grid_coord(
+                        ymin, xmin, _, _ = coord.get_box_coord_relative_to_grid_coord(
                             box, hochregallager)
-                        display_str2 = "{}, Left:{} Right:{} Top:{} Bottom:{}".format(
-                            display_str2, round(xmin), round(xmax), round(ymin), round(ymax))
+                        display_str2 = "{}, Left:{} Top:{}".format(
+                            display_str2, round(xmin), round(ymin))
 
                     wkstk_color = color_detector.detect_color_in_bounding_box(
                         image, box

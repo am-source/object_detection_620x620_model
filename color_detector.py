@@ -7,7 +7,8 @@ import coordinates as coord
 
 
 # COLOR THRESHOLDS
-# 110 lower bounds to make sure white(/black) isn't mistakenly recognized
+# lower bounds to make sure white(/black) isn't mistakenly recognized
+# any color with sat below lower_sat should be white, only colors with sat > lower_sat are "chromatic"
 lower_sat = 60
 lower_val = 25
 upper_sat = 255
@@ -23,7 +24,7 @@ red_mask_upper_2 = np.array([179, upper_sat, upper_val], np.uint8)
 blue_mask_lower = np.array([105, lower_sat, lower_val], np.uint8)
 blue_mask_upper = np.array([125, upper_sat, upper_val], np.uint8)
 
-# WHITE (sat 0-110, all other colors start at 110; val 175-255 removes noise)
+# WHITE (sat 0-lower_sat, all other colors start at lower_sat; val 175-255 removes noise)
 white_mask_lower = np.array([0, 0, 175], np.uint8)
 white_mask_upper = np.array([179, lower_sat, upper_val], np.uint8)
 
@@ -60,7 +61,7 @@ def detect_color_in_bounding_box(image_np, current_box):
     image = image_np.copy()
     top, left, bottom, right = current_box
 
-    # coordinates corresponding to the center 50% of the bounding box surface area
+    # coordinates corresponding to the center of the bounding box surface area
     y = int(top + (bottom - top) * 0.125)
     h = int(top + (bottom - top) * 0.875)
     x = int(left + (right - left) * 0.125)
@@ -77,7 +78,7 @@ def detect_color_in_bounding_box(image_np, current_box):
     # HSV based frame
     hsv_frame = cv2.cvtColor(img_dilated_and_eroded, cv2.COLOR_BGR2HSV)
 
-    # MASKS
+    # create MASKS of the frame
     red_mask_1 = cv2.inRange(hsv_frame, red_mask_lower_1, red_mask_upper_1)
     red_mask_2 = cv2.inRange(hsv_frame, red_mask_lower_2, red_mask_upper_2)
     blue_mask = cv2.inRange(hsv_frame, blue_mask_lower, blue_mask_upper)
@@ -106,10 +107,6 @@ def detect_color_in_bounding_box(image_np, current_box):
     ]
 
     # loop over masks and get corresponding color for bounding box
-    # object_color = "UNDECIDED"
-    # for mask in masks:
-    #     if np.count_nonzero(mask[0]) > (mask[0].size * 0.5):
-    #         object_color = mask[1]
     object_color = "UNDECIDED"
     max_mask_area = 0
     for mask in masks:

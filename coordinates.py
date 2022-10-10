@@ -27,11 +27,10 @@ def bounding_box_intersect(
         percent_threshold=0.2
 ):
     p_ymin, p_xmin, p_ymax, p_xmax = primary_box
-    #primary_box_area = float((p_xmax - p_xmin) * (p_ymax - p_ymin))
-    # using list to check for errors, only one elem should be appended
+
     intersect_elements = []
 
-    # loop over all WerkStueck bounding boxes and find the corresponding one
+    # loop over all secondary bounding boxes and find the ones with intersecting areas
     for i in range(secondary_boxes.shape[0]):
         (
             s_ymin,
@@ -44,10 +43,10 @@ def bounding_box_intersect(
         intersect_height = one_dim_intersect(p_ymin, p_ymax, s_ymin, s_ymax)
         intersect_area = intersect_width * intersect_height
 
+        # overlap percentage is based on the surface of SECONDARY box
         secondary_box_area = float((s_xmax - s_xmin) * (s_ymax - s_ymin))
         intersect_percent = intersect_area / secondary_box_area
-        # REMOVE
-        # print(intersect_percent)
+
         if intersect_percent >= percent_threshold:
             if secondary_boxes_scores is None:
                 if return_percent:
@@ -72,7 +71,7 @@ def bounding_box_intersect(
 
     return intersect_elements
 
-
+# box coordinates have relative values (0-1) after detection, need to be changed to actual/absolute pixel values
 def get_box_coordinates_from_normalized_coordinates(
     norm_box, image
 ):
@@ -120,6 +119,7 @@ def get_approx_hochregallager_grid_coordinates(hochregallager):
     else:
         hochregallager.grid_successfully_initialized = False
         return None
+    # calc grid outline using behaelter coords
     # behaelter_list = hochregallager.behaelter_obj_list
     #
     # ymin_test, xmin_test, ymax_test, xmax_test = behaelter_list[0].bounding_box[0], behaelter_list[
@@ -139,9 +139,11 @@ def get_approx_hochregallager_grid_coordinates(hochregallager):
 
 
 def handle_aruco_corner(corners):
-    # corners is a least of points, each point has the form (x_val,y_val)
+    # corners is a list of points, each point has the form (x_val,y_val)
+    # initialize values with the first point
     ymin, xmin, ymax, xmax = corners[0][1], corners[0][0], corners[0][1], corners[0][0]
 
+    # find  ymin,xmin,ymax,xmax of the aruco marker
     for point in corners:
         if point[0] < xmin:
             xmin = point[0]
@@ -197,7 +199,10 @@ def handle_grid_positions(hochregallager):
     # if grid_init_successful:
     #     hochregallager.grid_successfully_initialized = True
     if hochregallager.grid_successfully_initialized:
+        # get a list of temporarily assigned positions (not yet assigned in HRL)
         tmp_behaelter_arr = get_tmp_grid_positions(hochregallager)
+
+        # assign positions (based on tmp_behaelter_list) and handle missing timer
         for i in range(3):
             for j in range(3):
                 behaelter_obj = tmp_behaelter_arr[i][j]
@@ -398,6 +403,7 @@ def get_grid_cell_top_and_bottom(hochregallager, row, column):
 #     return result
 
 
+# used for cards on left sid of web UI, behaelter coord
 def get_box_coord_relative_to_grid_coord(box, hochregallager):
     h_ymin, h_xmin, _, _ = hochregallager.coordinates
     b_ymin, b_xmin, b_ymax, b_xmax = box

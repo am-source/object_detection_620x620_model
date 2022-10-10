@@ -11,6 +11,7 @@ from behaelter import Behaelter
 import coordinates as coord
 
 
+# relevant OD model vars
 WORKSPACE_PATH = "Tensorflow/workspace"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
@@ -20,12 +21,12 @@ CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
 
 
-## TF setup can't be called more than once, otherwise error would occur
+# TF setup can't be called more than once, otherwise error would occur
 # Load pipeline config and build a detection model
 configs = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
 detection_model = model_builder.build(
     model_config=configs["model"], is_training=False)
-# Restore checkpoint
+# Restore (training) checkpoint
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
 ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
 
@@ -34,8 +35,7 @@ def handle_detection(camera, hochregallager):
     frame = camera.frame
     image_np = np.array(frame)
 
-    # needed for while loop
-    # reset behaelter_obj_list (avoid appending to list of previous frame)
+    # reset behaelter_obj_list
     hochregallager.clear_behaelter_list()
     hochregallager.set_image(image_np)
 
@@ -44,6 +44,7 @@ def handle_detection(camera, hochregallager):
     input_tensor = tf.convert_to_tensor(
         np.expand_dims(image_np, 0), dtype=tf.float32)
 
+    # process object detection
     detections = detect_fn(input_tensor, detection_model)
 
     num_detections = int(detections.pop("num_detections"))
@@ -52,12 +53,12 @@ def handle_detection(camera, hochregallager):
     }
     detections["num_detections"] = num_detections
 
-    # detection_classes should be ints.
+    # detection_classes should be int
     detections["detection_classes"] = detections["detection_classes"].astype(
         np.int64)
 
     image_np_with_detections = image_np.copy()
-    ####################  get detections  ##############################################################
+    ####################  END get detections  ##########################################################
 
     # min score for bounding boxes
     min_score_threshold = 0.6
@@ -84,14 +85,14 @@ def handle_detection(camera, hochregallager):
 
     # ############ Behaelter (and indirect Wkstk) initilaized #####################################
     initialize_and_handle_objects(image_np_with_detections, hochregallager, filtered_Behaelter_detections, filtered_WerkStueck_detections)
-    # ############ Behaelter (and indirect Wkstk) initilaized #####################################
+    # ############ END Behaelter (and indirect Wkstk) initilaized #################################
 
     ##############  visualize  ################################################
-    # line_thickness concerns box outline, depending on webcam resolution (and possibly distance of objects) needs to be modified
+    # line_thickness concerns box outline, depending on webcam resolution (and distance of objects) needs to be modified
     # skip_boxes sets line_thickness to 0
     # skip_werkstueck: whether to skip visualizing WerkStueck class
     # skip_missing_timer: whether to skip visualizing timer in sec at grid cell position
-    # text_font_size: depending on webcam resolution (and possibly distance of objects) needs to be modified
+    # text_font_size: depending on webcam resolution (and distance of objects) needs to be modified
     visualize.visualize_boxes_and_labels_for_behaelter_and_werkstueck(
         image_np_with_detections,
         boxes,
@@ -111,14 +112,9 @@ def handle_detection(camera, hochregallager):
         skip_grid_outline=True,
         text_font_size=16,
     )
+    ##############  END visualize  ############################################
 
     return image_np_with_detections
-
-    # cv2.imshow("object detection", cv2.resize(
-    #     image_np_with_detections, (1500, 1200)))
-
-    # image_np_with_detections = cv2.resize(image_np_with_detections, (1280, 720))
-    ##############  visualize  ################################################
 
 
 @tf.function
@@ -136,7 +132,8 @@ def get_category_index():
     return category_index
 
 
-def initialize_and_handle_objects(image_np_with_detections, hochregallager, filtered_Behaelter_detections, filtered_WerkStueck_detections):
+def initialize_and_handle_objects(image_np_with_detections, hochregallager, filtered_Behaelter_detections,
+                                  filtered_WerkStueck_detections):
     # filtered_x_boxes, filtered_x_classes, filtered_x_scores = filtered_x_detections
     behaelter_boxes, _, behaelter_scores = filtered_Behaelter_detections
     # loop over all (filtered) boxes
