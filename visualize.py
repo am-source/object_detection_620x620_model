@@ -301,18 +301,19 @@ def visualize_missing_behaelter_timer(image, hochregallager, text_font_size):
             # check if timer is actually running
             if hochregallager.grid_cell_timer_arr[row][column] != 0:
                 grid_cell_timer_val = hochregallager.get_grid_cell_timer_value(row, column)
+                # small missing times might occur, when behaelter is missing in just one frame, avoid visualizing
+                if grid_cell_timer_val > 2:
+                    try:
+                        ################ FONT ###################
+                        font_size = text_font_size
+                        font = ImageFont.truetype('arial.ttf', font_size+1)
+                        ################ FONT ###################
 
-                try:
-                    ################ FONT ###################
-                    font_size = text_font_size
-                    font = ImageFont.truetype('arial.ttf', font_size+1)
-                    ################ FONT ###################
-
-                except IOError:
-                    font = ImageFont.load_default()
-                display_str = 'missing:\n{}s'.format(round(grid_cell_timer_val, 2))
-                draw_text_on_white_filled_rectangle(
-                    image, width_center=width_center, height_center=height_center, font=font, display_str=display_str)
+                    except IOError:
+                        font = ImageFont.load_default()
+                    display_str = 'missing:\n{}s'.format(round(grid_cell_timer_val, 2))
+                    draw_text_on_white_filled_rectangle(
+                        image, width_center=width_center, height_center=height_center, font=font, display_str=display_str)
 
 
 def draw_text_on_white_filled_rectangle(image, width_center, height_center, font, display_str):

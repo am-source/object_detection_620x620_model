@@ -16,7 +16,9 @@ WORKSPACE_PATH = "Tensorflow/workspace"
 ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
 # CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view"
-CUSTOM_MODEL_NAME = "FINAL_back_view"
+# CUSTOM_MODEL_NAME = "FINAL_back_view"
+# CUSTOM_MODEL_NAME = "FINAL_back_view_f"
+CUSTOM_MODEL_NAME = "FINAL_back_view_s"
 CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
 
