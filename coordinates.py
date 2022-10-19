@@ -168,6 +168,23 @@ def get_aruco_markers(hochregallager):
 
     # detectMarkers returns multiple(!) objects for each return val
     aruco_bboxes, aruco_ids, _ = cv2.aruco.detectMarkers(current_frame, aruco_dict, parameters=aruco_params)
+
+    # left marker probably wasn't detected, try with hard contrast/value changes
+    if len(aruco_bboxes) == 1:
+        contrast_mask_lower = np.array([0, 0, 230], np.uint8)
+        contrast_mask_upper = np.array([179, 27, 255], np.uint8)
+
+        # HSV based frame
+        hsv_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2HSV)
+
+        # create mask of the frame
+        contrast_mask = cv2.inRange(hsv_frame, contrast_mask_lower, contrast_mask_upper)
+        aruco_bboxes_2, aruco_ids_2, _ = cv2.aruco.detectMarkers(contrast_mask, aruco_dict, parameters=aruco_params)
+        for i in range(len(aruco_bboxes_2)):
+            if aruco_ids_2[i] != aruco_ids[0]:
+                aruco_bboxes = [aruco_bboxes[0], aruco_bboxes_2[i]]
+                break
+
     return aruco_bboxes, aruco_ids
 
 

@@ -17,8 +17,8 @@ ANNOTATION_PATH = WORKSPACE_PATH + "/annotations"
 MODEL_PATH = WORKSPACE_PATH + "/models"
 # CUSTOM_MODEL_NAME = "my_ssd_mobnet_only_back_view"
 # CUSTOM_MODEL_NAME = "FINAL_back_view"
-# CUSTOM_MODEL_NAME = "FINAL_back_view_f"
-CUSTOM_MODEL_NAME = "FINAL_back_view_s"
+CUSTOM_MODEL_NAME = "FINAL_back_view_f"
+# CUSTOM_MODEL_NAME = "FINAL_back_view_s"
 CHECKPOINT_PATH = MODEL_PATH + "/{}/".format(CUSTOM_MODEL_NAME)
 CONFIG_PATH = MODEL_PATH + "/" + CUSTOM_MODEL_NAME + "/pipeline.config"
 
@@ -30,7 +30,7 @@ detection_model = model_builder.build(
     model_config=configs["model"], is_training=False)
 # Restore (training) checkpoint
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-21")).expect_partial()
+ckpt.restore(os.path.join(CHECKPOINT_PATH, "ckpt-16")).expect_partial()
 
 
 def handle_detection(camera, hochregallager):

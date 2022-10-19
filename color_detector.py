@@ -21,7 +21,7 @@ red_mask_lower_2 = np.array([165, lower_sat, lower_val], np.uint8)
 red_mask_upper_2 = np.array([179, upper_sat, upper_val], np.uint8)
 
 # BLUE
-blue_mask_lower = np.array([105, lower_sat, lower_val], np.uint8)
+blue_mask_lower = np.array([100, lower_sat, lower_val], np.uint8)
 blue_mask_upper = np.array([125, upper_sat, upper_val], np.uint8)
 
 # WHITE (sat 0-lower_sat, all other colors start at lower_sat; val 175-255 removes noise)
@@ -42,7 +42,7 @@ yellow_mask_upper = np.array([33, upper_sat, upper_val], np.uint8)
 
 # CYAN
 cyan_mask_lower = np.array([85, lower_sat, lower_val], np.uint8)
-cyan_mask_upper = np.array([105, upper_sat, upper_val], np.uint8)
+cyan_mask_upper = np.array([100, upper_sat, upper_val], np.uint8)
 
 # VIOLET
 violet_mask_lower = np.array([125, lower_sat, lower_val], np.uint8)

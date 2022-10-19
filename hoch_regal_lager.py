@@ -18,16 +18,22 @@ class Hochregallager:
         self.missing_time_record_arr = [[[] for x in range(3)] for y in range(3)]
         self.grid_successfully_initialized = False
         self.image = None
+        self.grid_reinitialize_counter = 0
 
     # handles all grid related tasks
     def handle_grid_coordinates_and_pos_assignment(self):
-        self.initialize_grid_coordinates()
+        if self.grid_reinitialize_counter == 0:
+            self.initialize_grid_coordinates()
+        else:
+            self.grid_reinitialize_counter -= 1
         coord.handle_grid_positions(self)
 
     def initialize_grid_coordinates(self):
         approx_coord = coord.get_approx_hochregallager_grid_coordinates(
             self)
         if approx_coord is not None:
+            self.grid_reinitialize_counter = 30
+
             self.coordinates = approx_coord
             self.width_in_px = coord.get_approx_hochregallager_grid_width(
                 self)
